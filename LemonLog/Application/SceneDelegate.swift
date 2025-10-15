@@ -21,7 +21,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: windowScene)
         
         // 3. 루트 뷰 컨트롤러. 설정
-        let mainVC = ViewController()
+        let mainVC = SplashViewController()
         window?.rootViewController = mainVC
         
         // 4. 화면에 표시 (필수)
