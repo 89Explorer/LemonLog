@@ -6,7 +6,7 @@
         <relationship name="diary" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="EmotionDiaryEntity" inverseName="images" inverseEntity="EmotionDiaryEntity"/>
     </entity>
     <entity name="EmotionDiaryEntity" representedClassName="EmotionDiaryEntity" syncable="YES">
-        <attribute name="context" optional="YES" attributeType="String"/>
+        <attribute name="content" optional="YES" attributeType="String"/>
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="emotion" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="String"/>

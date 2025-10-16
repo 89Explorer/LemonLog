@@ -18,7 +18,7 @@ extension EmotionDiaryEntity {
 
     @NSManaged public var id: String?
     @NSManaged public var emotion: String?
-    @NSManaged public var context: String?
+    @NSManaged public var content: String?
     @NSManaged public var createdAt: Date?
     @NSManaged public var images: NSSet?
 
@@ -43,4 +43,31 @@ extension EmotionDiaryEntity {
 
 extension EmotionDiaryEntity : Identifiable {
 
+}
+
+extension EmotionDiaryEntity {
+    
+    
+    func toModel() -> EmotionDiaryModel? {
+        guard
+            let idString = id,
+            let uuid = UUID(uuidString: idString),
+            let emotion = self.emotion,
+            let content = self.content,
+            let createdAt = self.createdAt
+        else {
+#if DEBUG
+            print("❌ toModel 변환 실패: 필수 값 누락")
+#endif
+            return nil
+        }
+        
+        return EmotionDiaryModel(
+            id: uuid,
+            emotion: emotion,
+            content: content,
+            createdAt: createdAt,
+            images: <#T##[UIImage]?#>
+        )
+    }
 }
