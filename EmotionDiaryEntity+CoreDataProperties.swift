@@ -8,6 +8,7 @@
 
 import Foundation
 import CoreData
+import UIKit
 
 
 extension EmotionDiaryEntity {
@@ -47,7 +48,7 @@ extension EmotionDiaryEntity : Identifiable {
 
 extension EmotionDiaryEntity {
     
-    
+    // MARK: ✅ Method (EmotionDiaryEntity → EmotionDiaryModel 로 변환)
     func toModel() -> EmotionDiaryModel? {
         guard
             let idString = id,
@@ -56,10 +57,23 @@ extension EmotionDiaryEntity {
             let content = self.content,
             let createdAt = self.createdAt
         else {
-#if DEBUG
-            print("❌ toModel 변환 실패: 필수 값 누락")
-#endif
+            LogManager.print(.error, "toModel 변환 실패: 필수 값 누락")
             return nil
+        }
+        
+        var loadedImages: [UIImage] = []
+        
+        if let imageEntities = images as? Set<DiaryImageEntity> {
+            for entity in imageEntities {
+                if let path = entity.imagePath,
+                   let image = DiaryImageFileManager.shared.loadImage(from: path) {
+                    loadedImages.append(image)
+                } else {
+                    LogManager.print(.warning, "이미지 로드 실패 또는 경로 없음")
+                }
+            }
+        } else {
+            LogManager.print(.warning, "images NSSet 변환 실패 ")
         }
         
         return EmotionDiaryModel(
@@ -67,7 +81,7 @@ extension EmotionDiaryEntity {
             emotion: emotion,
             content: content,
             createdAt: createdAt,
-            images: <#T##[UIImage]?#>
+            images: loadedImages.isEmpty ? nil : loadedImages
         )
     }
 }

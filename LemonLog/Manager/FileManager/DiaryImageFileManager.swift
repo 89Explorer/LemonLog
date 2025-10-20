@@ -21,6 +21,11 @@ final class DiaryImageFileManager {
     // 저장하려는 이미지를 담는 폴더명
     private let folderName: String = "EmotionDiaryImages"
     
+    // 외부 접근 허용: 이미지 저장소와 기본 경로
+    var folderURL: URL {
+        getDocumentsDirectory()
+    }
+    
     
     // MARK: ✅ Private Path Method
     private func getDocumentsDirectory() -> URL {
