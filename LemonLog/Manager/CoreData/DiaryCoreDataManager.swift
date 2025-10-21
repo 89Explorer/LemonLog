@@ -41,14 +41,20 @@ final class DiaryCoreDataManager {
     
     
     // MARK: ✅ Save Context
-    func saveContext() {
-        guard context.hasChanges else { return }
+    @discardableResult
+    func saveContext() -> Bool {
+        guard context.hasChanges else {
+            LogManager.print(.warning, "저장할 변경사항이 없습니다.")
+            return false
+        }
         
         do {
             try context.save()
             LogManager.print(.success, "Core Data 저장 성공")
+            return true
         } catch {
             LogManager.print(.error, "Core Data 저장 실패: \(error.localizedDescription)")
+            return false
         }
     }
     
@@ -60,7 +66,8 @@ extension DiaryCoreDataManager {
     
     
     // MARK: ✅ Create - 감정일기 저장
-    func saveDiary(_ model: EmotionDiaryModel) {
+    @discardableResult
+    func saveDiary(_ model: EmotionDiaryModel) -> Bool {
         let diary = EmotionDiaryEntity(context: context)
         diary.id = model.id.uuidString
         diary.emotion = model.emotion
@@ -70,16 +77,30 @@ extension DiaryCoreDataManager {
         // 이미지 저장
         if let images = model.images {
             for (index, image) in images.enumerated() {
-                if let path = DiaryImageFileManager.shared.saveImage(image, diaryID: model.id.uuidString, index: index) {
+                if let path = DiaryImageFileManager.shared.saveImage(
+                    image,
+                    diaryID: model.id.uuidString,
+                    index: index
+                ) {
                     let imageEntity = DiaryImageEntity(context: context)
                     imageEntity.id = UUID().uuidString
                     imageEntity.imagePath = path
                     imageEntity.diary = diary
                     diary.addToImages(imageEntity)
+                } else {
+                    LogManager.print(.warning, "이미지 저장 실패 (index \(index)")
                 }
             }
         }
-        saveContext()
+        
+        // 저장 시도 (성공 / 실패 결과 반영)
+        let success = saveContext()
+        if success {
+            LogManager.print(.success, "감정일기 저장 성공 (\(model.id))")
+        } else {
+            LogManager.print(.error, "감정일기 저장 실패 (\(model.id)")
+        }
+        return success
     }
     
     
@@ -213,13 +234,14 @@ extension DiaryCoreDataManager {
     
     
     // MARK: ✅ Update - 감정일기 수정
-    func updateDiary(_ model: EmotionDiaryModel) {
+    @discardableResult
+    func updateDiary(_ model: EmotionDiaryModel) -> Bool {
         let request: NSFetchRequest<EmotionDiaryEntity> = EmotionDiaryEntity.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", model.id.uuidString)
         
         guard let diary = try? context.fetch(request).first else {
             LogManager.print(.warning, "수정할 일기 찾을 수 없음: \(model.id)")
-            return
+            return false
         }
         
         diary.emotion = model.emotion
@@ -232,21 +254,36 @@ extension DiaryCoreDataManager {
         
         if let newImages = model.images {
             for (index, image) in newImages.enumerated() {
-                if let path = DiaryImageFileManager.shared.saveImage(image, diaryID: model.id.uuidString, index: index) {
+                if let path = DiaryImageFileManager.shared.saveImage(
+                    image,
+                    diaryID: model.id.uuidString,
+                    index: index
+                ) {
                     let imageEntity = DiaryImageEntity(context: context)
                     imageEntity.id = UUID().uuidString
                     imageEntity.imagePath = path
                     imageEntity.diary = diary
                     diary.addToImages(imageEntity)
+                } else {
+                    LogManager.print(.warning, "이미지 저장 실패 (index \(index))")
                 }
             }
         }
-        saveContext()
+        
+        // 저장 시도 (성공 / 실패 결과 반영)
+        let success = saveContext()
+        if success {
+            LogManager.print(.success, "감정일기 수정 성공 (\(model.id))")
+        } else {
+            LogManager.print(.error, "감정일기 수정 실패 (\(model.id))")
+        }
+        return success
     }
     
     
     // MARK: ✅ Delete - 감정일기 삭제
-    func deleteDiary(by id: String) {
+    @discardableResult
+    func deleteDiary(by id: String) -> Bool {
         let request: NSFetchRequest<EmotionDiaryEntity> = EmotionDiaryEntity.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", id)
         
@@ -259,11 +296,22 @@ extension DiaryCoreDataManager {
                 
                 // Core Data 삭제
                 context.delete(entity)
-                saveContext()
-                LogManager.print(.success, "감정일기 삭제 완료 [\(id)]")
+                
+                let success = saveContext()
+                if success {
+                    LogManager.print(.success, "감정읽기 삭제 완료 [\(id)]")
+                } else {
+                    LogManager.print(.error, "감정일기 삭제 실패 [\(id)] - Core Data 저장 실패")
+                }
+                return success
+                
+            } else {
+                LogManager.print(.warning, "삭제할 일기를 찾을 수 없음 [\(id)]")
+                return false
             }
         } catch {
-            LogManager.print(.error, "삭제 실패: \(error.localizedDescription)")
+            LogManager.print(.error, "삭제 중 오류 발생: \(error.localizedDescription)")
+            return false 
         }
     }
     
