@@ -101,6 +101,20 @@ Homebrew
 ## 🧠 개발 히스토리 (Commit + Blog)
 | 날짜 | 주요 작업 |
 |------|------------|
+|2025.10.23|test: DiaryStore 및 DiaryProviding 기능 검증 테스트 추가 (https://github.com/89Explorer/LemonLog/commit/f6a8d045297d15ac0847bdece05bc4676960f85e)|
+- https://explorer89.tistory.com/511 (🧪 Xcode에서 XCTestCase로 단위 테스트 작성하기— DiaryStore 테스트를 예시로 배우는 실전 가이드)
+
+
+| 날짜 | 주요 작업 |
+|------|------------|
+|2025.10.23|feat: Core Data 전역 상태 관리용 DiaryStore 및 DiaryProviding 프로토콜 추가 (https://github.com/89Explorer/LemonLog/commit/6a071890ae626445eaf48f5b378c3791583c18ac)|
+- https://explorer89.tistory.com/508 (🧩 @Published vs CurrentValueSubject — Combine에서의 타이밍 차이 완벽 정리)
+- https://explorer89.tistory.com/509 (🍋 DiaryStore 설계 총정리 — “하나의 진실(Single Source of Truth)” 패턴으로 Core Data 관리하기)
+- https://explorer89.tistory.com/510 (🧭 DiaryProviding 프로토콜 — 읽기 전용 인터페이스로 ViewModel을 보호하기)
+
+
+| 날짜 | 주요 작업 |
+|------|------------|
 |2025.10.21|feat: Core Data CRUD 기능 검증용 DiaryTestManager 추가 및 Core Data 메서드 개선 (https://github.com/89Explorer/LemonLog/commit/c08a348730df9f5eabf21413c9f7ee9c7bd8b65e)|
 - https://explorer89.tistory.com/502 (🧪 DiaryTestManager, 어디에 두는 게 맞을까?)
 - https://explorer89.tistory.com/503 (⚙️ Core Data에서 catch가 작동하지 않는 이유)
@@ -108,6 +122,7 @@ Homebrew
 - https://explorer89.tistory.com/505 (🧠 Core Data CRUD 테스트 자동화 — DiaryTestManager 완전 해설)
 - https://explorer89.tistory.com/506 (🚀 Xcode에서 Core Data CRUD 테스트 실행하기)
 - https://explorer89.tistory.com/507 (🧩 LemonLog Core Data 테스트 콘솔 로그 분석)
+
 
 | 날짜 | 주요 작업 |
 |------|------------|
