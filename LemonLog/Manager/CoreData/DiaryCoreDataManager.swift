@@ -11,7 +11,6 @@ import UIKit
 
 
 // MARK: - DiaryCoreDataManager (Singleton)
-@MainActor
 final class DiaryCoreDataManager {
     
     // MARK: ✅ Singleton
@@ -136,11 +135,9 @@ extension DiaryCoreDataManager {
     
     func fetchDiairesAsync(mode: FetchMode) async -> [EmotionDiaryModel] {
         await withCheckedContinuation { continuation in
-            DispatchQueue.global(qos: .userInitiated).async {
-                Task { @MainActor in   // 메인 액터로 되돌려 실행
-                    let result  = self.fetchDiaries(mode: mode)
-                    continuation.resume(returning: result)
-                }
+            context.perform { // Core Data 전용 안전 스레드
+                let result = self.fetchDiaries(mode: mode)
+                continuation.resume(returning: result)
             }
         }
     }
