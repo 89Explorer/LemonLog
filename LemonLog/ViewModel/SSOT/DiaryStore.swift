@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import UIKit
 
 
 // MARK: - 감정일기 데이터의 전역 상태를 관리하는 ViewModel (Single Source of Truth)
@@ -30,7 +31,6 @@ final class DiaryStore: DiaryProviding {
     var diariesPublisher: AnyPublisher<[EmotionDiaryModel], Never> {
         diariesSubject.eraseToAnyPublisher()
     }
-    
     
     var snapshot: [EmotionDiaryModel] { diariesSubject.value }
     
@@ -71,6 +71,10 @@ final class DiaryStore: DiaryProviding {
     func countByEmotion(inWeekOf date: Date) -> [EmotionCategory : Int] {
         let weekly = diaries(inWeekOf: date)
         return Dictionary(grouping: weekly) { EmotionCategory(rawValue: $0.emotion) ?? .happy_grade_1 }.mapValues(\.count)
+    }
+    
+    func fetchFirstImages() async -> [(image: UIImage?, diaryID: String)] {
+        await manager.fetchFirstImages()
     }
     
     

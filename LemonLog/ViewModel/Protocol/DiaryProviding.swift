@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import UIKit
 
 
 // MARK: - 감정일기 데이터에 접근하기 위한 읽기 전용 인터페이스
@@ -32,5 +33,8 @@ protocol DiaryProviding: AnyObject {
     
     // 주간 감정별 통계 (예: 행복 3개, 슬픔 2개)
     func countByEmotion(inWeekOf date: Date) -> [EmotionCategory: Int]
+    
+    // 대표 이미지 로드
+    func fetchFirstImages() async -> [(image: UIImage?, diaryID: String)]
     
 }
