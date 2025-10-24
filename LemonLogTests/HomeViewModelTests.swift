@@ -113,5 +113,6 @@ final class HomeViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.emotionSummary[.happy_grade_1], 2)
         XCTAssertEqual(viewModel.emotionSummary[.sad_grade_1], 1)
     }
-    
 }
+
+
