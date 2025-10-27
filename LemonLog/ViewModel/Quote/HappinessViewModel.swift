@@ -14,8 +14,9 @@ final class HappinessViewModel: ObservableObject {
     
     
     // MARK: ✅ Published Properties
-    @Published var quote: String = ""
-    @Published var author: String = ""
+    //@Published var quote: String = ""
+    //@Published var author: String = ""
+    @Published var quote: HappinessQuote?   // 모델 단위로 관리
     
     private let service: HappinessServiceProviding
     private var cancellables = Set<AnyCancellable>()
@@ -35,8 +36,9 @@ final class HappinessViewModel: ObservableObject {
                     LogManager.print(.error, "명언 불러오기 실패: \(error.localizedDescription)")
                 }
             }, receiveValue: { [weak self] quoteData in
-                self?.quote = quoteData.content
-                self?.author = quoteData.author
+                //self?.quote = quoteData.content
+                //self?.author = quoteData.author
+                self?.quote = quoteData
                 LogManager.print(.success, "명언 업데이트 완료")
             })
             .store(in: &cancellables)

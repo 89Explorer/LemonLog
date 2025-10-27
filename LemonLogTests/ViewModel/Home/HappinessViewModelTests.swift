@@ -20,6 +20,7 @@ final class MockHappinessService: HappinessServiceProviding {
             description: "테스트용 Mock 데이터",
             link: nil
         )
+        
         return Just(mockQuote)
             .setFailureType(to: Error.self)
             .receive(on: DispatchQueue.main)
@@ -31,11 +32,11 @@ final class MockHappinessService: HappinessServiceProviding {
 // MARK: - Tests
 @MainActor
 final class HappinessViewModelTests: XCTestCase {
-
+    
     private var cancellables: Set<AnyCancellable>!
     private var viewModel: HappinessViewModel!
     private var mockService: MockHappinessService!
-
+    
     // MARK: - Setup & Teardown
     override func setUp() {
         super.setUp()
@@ -43,14 +44,14 @@ final class HappinessViewModelTests: XCTestCase {
         mockService = MockHappinessService()
         viewModel = HappinessViewModel(service: mockService)
     }
-
+    
     override func tearDown() {
         cancellables = nil
         viewModel = nil
         mockService = nil
         super.tearDown()
     }
-
+    
     // MARK: - Tests
     func test_loadQuote_UpdatesPublishedValues() {
         // Given
@@ -58,11 +59,18 @@ final class HappinessViewModelTests: XCTestCase {
         
         // Then
         viewModel.$quote
-            .dropFirst() // 초기값("") 이후의 첫 번째 emit만 받음
+            .dropFirst() // 초기값 이후의 첫 번째 emit만 받음
             .sink { quote in
-                XCTAssertEqual(quote, "행복은 마음가짐의 문제다.")
-                XCTAssertEqual(self.viewModel.author, "")
-
+                
+                guard let quote = quote else {
+                    XCTFail("quote가 nil이면 안됨")
+                    return
+                }
+                
+                XCTAssertEqual(quote.content, "행복은 마음가짐의 문제다.")
+                XCTAssertEqual(quote.author, "익명")
+                XCTAssertEqual(quote.description, "테스트용 Mock 데이터")
+                
                 LogManager.print(.success, "✅ ViewModel 상태 업데이트 성공")
                 expectation.fulfill()
             }
@@ -71,7 +79,7 @@ final class HappinessViewModelTests: XCTestCase {
         // When
         viewModel.loadQuote()
         RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
-
+        
         wait(for: [expectation], timeout: 3.0)
     }
 }

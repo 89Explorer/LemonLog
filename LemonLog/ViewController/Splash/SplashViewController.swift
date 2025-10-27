@@ -35,7 +35,7 @@ final class SplashViewController: UIViewController {
     
     // MARK: ✅ Method
     private func setupUI() {
-        view.backgroundColor = UIColor.white
+        view.backgroundColor = UIColor(named: "VanillaCream")
         
         logoImageView = UIImageView(image: UIImage(named: "lemon"))
         logoImageView.contentMode = .scaleAspectFit
