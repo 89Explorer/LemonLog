@@ -101,6 +101,20 @@ Homebrew
 ## 🧠 개발 히스토리 (Commit + Blog)
 | 날짜 | 주요 작업 |
 |------|------------|
+|2025.10.27|feat: HappinessViewModel 및 테스트 구조 구현 (Mock Service + 프로토콜 기반 DI)|
+
+| 날짜 | 주요 작업 |
+|------|------------|
+|2025.10.25|feat: 외부 명언 API 연동을 위한 데이터 모델 및 서비스 계층 구현|
+|2025.10.25|test: HappinessService 단위 테스트 추가 및 API 응답 검증 완료|
+
+
+| 날짜 | 주요 작업 |
+|------|------------|
+|2025.10.24|feat: HomeViewModel 및 단위 테스트 추가 (Combine 비동기 검증 포함) (https://github.com/89Explorer/LemonLog/commit/f1350d2183d5bcfee4d6eb82db3723f465d814dd)|
+
+| 날짜 | 주요 작업 |
+|------|------------|
 |2025.10.23|test: DiaryStore 및 DiaryProviding 기능 검증 테스트 추가 (https://github.com/89Explorer/LemonLog/commit/f6a8d045297d15ac0847bdece05bc4676960f85e)|
 - https://explorer89.tistory.com/511 (🧪 Xcode에서 XCTestCase로 단위 테스트 작성하기— DiaryStore 테스트를 예시로 배우는 실전 가이드)
 
