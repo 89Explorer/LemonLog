@@ -15,6 +15,7 @@ final class HomeViewModel: ObservableObject {
     
     
     // MARK: ✅ Dependencies
+    private let happinessViewModel = HappinessViewModel()
     private let store: DiaryProviding
     private var cancellables = Set<AnyCancellable>()
     
@@ -23,7 +24,7 @@ final class HomeViewModel: ObservableObject {
     @Published private(set) var recentDiaries: [EmotionDiaryModel] = []
     @Published private(set) var emotionSummary: [EmotionCategory: Int] = [:]
     @Published private(set) var diaryImages: [(image: UIImage?, diaryID: String)] = []
-    
+    @Published private(set) var quote: HappinessQuote?
     
     // MARK: ✅ Init
     init(store: DiaryProviding? = nil) {
@@ -31,9 +32,11 @@ final class HomeViewModel: ObservableObject {
         // Swift 6 - safe 초기화
         self.store = store ?? DiaryStore.shared
         observeStore()
+        bindHappinessQuote()
         Task {
             await loadDiaryImages()
         }
+        happinessViewModel.loadQuote()   // 홈 진입시 명언을 바로 호출
     }
     
     
@@ -63,4 +66,15 @@ final class HomeViewModel: ObservableObject {
         }
     }
     
+    
+    // MARK: ✅ Bind HappinessViewModel
+    private func bindHappinessQuote() {
+        happinessViewModel.$quote
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] quote in
+                self?.quote = quote
+            }
+            .store(in: &cancellables)
+    }
+
 }
