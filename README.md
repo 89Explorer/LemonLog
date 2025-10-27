@@ -101,12 +101,12 @@ Homebrew
 ## 🧠 개발 히스토리 (Commit + Blog)
 | 날짜 | 주요 작업 |
 |------|------------|
-|2025.10.27|feat: HappinessViewModel 및 테스트 구조 구현 (Mock Service + 프로토콜 기반 DI)|
+|2025.10.27|feat: HappinessViewModel 및 테스트 구조 구현 (Mock Service + 프로토콜 기반 DI) (https://github.com/89Explorer/LemonLog/commit/14e2fc29b52590f8f41c9e908e7a2876569bd92f)|
 
 | 날짜 | 주요 작업 |
 |------|------------|
-|2025.10.25|feat: 외부 명언 API 연동을 위한 데이터 모델 및 서비스 계층 구현|
-|2025.10.25|test: HappinessService 단위 테스트 추가 및 API 응답 검증 완료|
+|2025.10.25|feat: 외부 명언 API 연동을 위한 데이터 모델 및 서비스 계층 구현 (https://github.com/89Explorer/LemonLog/commit/b3f427429a969d0317f25e17f81bde8b0602a1e5)|
+|2025.10.25|test: HappinessService 단위 테스트 추가 및 API 응답 검증 완료 (https://github.com/89Explorer/LemonLog/commit/e645d61086bca4ae8434efdfd19bc0ba206fdf92)|
 
 
 | 날짜 | 주요 작업 |
