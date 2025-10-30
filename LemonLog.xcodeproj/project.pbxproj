@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A1A2B3ED2EB058D200038B3F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A1A2B3EB2EB058D200038B3F /* Localizable.strings */; };
 		A1C21CD42EA0929700C18B67 /* DiaryImageEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C21CD12EA0929700C18B67 /* DiaryImageEntity+CoreDataProperties.swift */; };
 		A1C21CD52EA0929700C18B67 /* EmotionDiaryEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C21CD32EA0929700C18B67 /* EmotionDiaryEntity+CoreDataProperties.swift */; };
 		A1C21CD62EA0929700C18B67 /* DiaryImageEntity+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C21CD02EA0929700C18B67 /* DiaryImageEntity+CoreDataClass.swift */; };
@@ -31,6 +32,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A1A2B3EF2EB0590F00038B3F /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
+		A1A2B3F22EB0596200038B3F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		A1C21CD02EA0929700C18B67 /* DiaryImageEntity+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DiaryImageEntity+CoreDataClass.swift"; sourceTree = "<group>"; };
 		A1C21CD12EA0929700C18B67 /* DiaryImageEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DiaryImageEntity+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		A1C21CD22EA0929700C18B67 /* EmotionDiaryEntity+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EmotionDiaryEntity+CoreDataClass.swift"; sourceTree = "<group>"; };
@@ -99,6 +102,7 @@
 		A1DE7C4D2E9B818F008EC868 = {
 			isa = PBXGroup;
 			children = (
+				A1A2B3EB2EB058D200038B3F /* Localizable.strings */,
 				A1C21CD02EA0929700C18B67 /* DiaryImageEntity+CoreDataClass.swift */,
 				A1C21CD12EA0929700C18B67 /* DiaryImageEntity+CoreDataProperties.swift */,
 				A1C21CD22EA0929700C18B67 /* EmotionDiaryEntity+CoreDataClass.swift */,
@@ -215,11 +219,12 @@
 				};
 			};
 			buildConfigurationList = A1DE7C512E9B818F008EC868 /* Build configuration list for PBXProject "LemonLog" */;
-			developmentRegion = en;
+			developmentRegion = ko;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				en,
 				Base,
+				ko,
+				en,
 			);
 			mainGroup = A1DE7C4D2E9B818F008EC868;
 			minimizedProjectReferenceProxies = 1;
@@ -240,6 +245,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1A2B3ED2EB058D200038B3F /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -299,6 +305,18 @@
 			targetProxy = A1DE7C7A2E9B8191008EC868 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		A1A2B3EB2EB058D200038B3F /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				A1A2B3EF2EB0590F00038B3F /* ko */,
+				A1A2B3F22EB0596200038B3F /* en */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		A1DE7C832E9B8191008EC868 /* Debug */ = {
@@ -364,6 +382,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -428,6 +447,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";

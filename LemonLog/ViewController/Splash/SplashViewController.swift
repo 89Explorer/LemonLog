@@ -35,7 +35,8 @@ final class SplashViewController: UIViewController {
     
     // MARK: ✅ Method
     private func setupUI() {
-        view.backgroundColor = UIColor(named: "VanillaCream")
+        view.backgroundColor = .secondarySystemBackground
+        //view.backgroundColor = UIColor(named: "VanillaCream")
         
         logoImageView = UIImageView(image: UIImage(named: "lemon"))
         logoImageView.contentMode = .scaleAspectFit
@@ -52,9 +53,10 @@ final class SplashViewController: UIViewController {
     }
     
     private func moveToMain() {
-        let mainVC = ViewController()
-        mainVC.modalTransitionStyle = .crossDissolve
-        mainVC.modalPresentationStyle = .fullScreen
-        present(mainVC, animated: true)
+        let homeVC = HomeViewController()
+        let navVC = UINavigationController(rootViewController: homeVC)
+        navVC.modalTransitionStyle = .crossDissolve
+        navVC.modalPresentationStyle = .fullScreen
+        present(navVC, animated: true)
     }
 }
