@@ -34,6 +34,11 @@ protocol DiaryProviding: AnyObject {
     // 주간 감정별 통계 (예: 행복 3개, 슬픔 2개)
     func countByEmotion(inWeekOf date: Date) -> [EmotionCategory: Int]
     
+    // 특정 주(week)에 해당하는 요일별 감정 요약
+    // 여기서 반환 타입이 "DiaryCoreDataManager.Weekday" 이유
+    // DiaryCoreDataManager에 enum이 정의되어 있고, ViewModel은 Calendar 계산을 알 필요가 없기 때문
+    func fetchWeeklySummary(for date: Date) -> [DiaryCoreDataManager.Weekday: [EmotionCategory]]
+    
     // 대표 이미지 로드
     func fetchFirstImages() async -> [(image: UIImage?, diaryID: String)]
     

@@ -73,6 +73,10 @@ final class DiaryStore: DiaryProviding {
         return Dictionary(grouping: weekly) { EmotionCategory(rawValue: $0.emotion) ?? ._2 }.mapValues(\.count)
     }
     
+    func fetchWeeklySummary(for date: Date) -> [DiaryCoreDataManager.Weekday : [EmotionCategory]] {
+        manager.fetchWeeklySummary(for: date)
+    }
+    
     func fetchFirstImages() async -> [(image: UIImage?, diaryID: String)] {
         await manager.fetchFirstImages()
     }
