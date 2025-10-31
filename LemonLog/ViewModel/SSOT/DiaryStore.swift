@@ -70,7 +70,7 @@ final class DiaryStore: DiaryProviding {
     
     func countByEmotion(inWeekOf date: Date) -> [EmotionCategory : Int] {
         let weekly = diaries(inWeekOf: date)
-        return Dictionary(grouping: weekly) { EmotionCategory(rawValue: $0.emotion) ?? .happy_grade_1 }.mapValues(\.count)
+        return Dictionary(grouping: weekly) { EmotionCategory(rawValue: $0.emotion) ?? ._2 }.mapValues(\.count)
     }
     
     func fetchFirstImages() async -> [(image: UIImage?, diaryID: String)] {

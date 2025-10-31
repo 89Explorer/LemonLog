@@ -1,0 +1,20 @@
+/* 
+  Localizable.strings
+  LemonLog
+
+  Created by 권정근 on 10/28/25.
+  
+*/
+
+// Home - HomeSection 
+"home_section_quote_title" = "오늘의 한마디";
+"home_section_quote_subtitle" = "마음을 가만히, 하루를 새롭게";
+
+"home_section_emotion_summary_title" = "이번 주의 마음";
+"home_section_emotion_summary_subtitle" = "일주일의 온도, 감정의 결";
+
+"home_section_recent_entries_title" = "최근의 기록";
+"home_section_recent_entries_subtitle" = "지나간 하루, 머무는 생각";
+
+"home_section_photo_gallery_title" = "최근의 장면들";
+"home_section_photo_gallery_subtitle" = "사진 속 하루, 그때의 감정";

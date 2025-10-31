@@ -376,6 +376,60 @@ extension DiaryCoreDataManager {
         
     }
     
+    
+    // MARK: ✅ 요일 별 감정 데이터 가져오기 (요일 - 감정)
+    func fetchWeeklySummary(for date: Date = Date()) -> [Weekday: [EmotionCategory]] {
+        let calendar = Calendar.current
+        
+        // 이번 주의 시작(월요일)과 끝(일요일) 날짜 계산
+        guard let weekInterval = calendar.dateInterval(of: .weekOfYear, for: date) else { return [:] }
+        let startOfWeek = weekInterval.start
+        let endOfWeek = calendar.date(byAdding: .day, value: 6, to: startOfWeek)!
+        
+        // fetchRequest 생성
+        let request = makeBaseFetchRequest()
+        request.predicate = NSPredicate(format: "createdAt >= %@ AND createdAt <= %@", startOfWeek as NSDate, endOfWeek as NSDate)
+        
+        // fetch
+        let diaries = performFetch(request)
+        
+        // 요일별 그룹화
+        var weeklySummary: [Weekday: [EmotionCategory]] = [:]
+        
+        for diary in diaries {
+            let createdDate = diary.createdAt
+            let weekdayIndex = calendar.component(.weekday, from: createdDate)
+            
+            // Swift Calendar에서 weekday는 1=일요일, 2=월요일... 7=토요일
+            let weekday: Weekday
+            switch weekdayIndex {
+            case 1: weekday = .sun
+            case 2: weekday = .mon
+            case 3: weekday = .tue
+            case 4: weekday = .wed
+            case 5: weekday = .thu
+            case 6: weekday = .fri
+            case 7: weekday = .sat
+            default: continue
+            }
+            
+            // EmotionCategroy 변환
+            if let category = EmotionCategory(rawValue: diary.emotion) {
+                weeklySummary[weekday, default: []].append(category)
+            }
+        }
+        
+        return weeklySummary
+    }
+    
+}
+
+
+// MARK: - extension (주간 감정 요약에 쓰일 Weekday)
+extension DiaryCoreDataManager {
+    enum Weekday: String, CaseIterable {
+        case mon, tue, wed, thu, fri, sat, sun
+    }
 }
 
 

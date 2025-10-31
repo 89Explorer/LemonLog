@@ -17,7 +17,7 @@ struct HappinessResponse: Decodable {
 
 
 // MARK: - 실제 명언 데이터
-struct HappinessQuote: Decodable, Identifiable {
+struct HappinessQuote: Decodable, Identifiable, Hashable, Sendable {
     let id: Int
     let content: String
     let author: String

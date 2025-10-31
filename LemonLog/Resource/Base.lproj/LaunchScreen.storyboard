@@ -3,8 +3,8 @@
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
-        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -18,7 +18,7 @@
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="lemon" translatesAutoresizingMaskIntoConstraints="NO" id="1pv-2C-FNc">
                                 <rect key="frame" x="146.66666666666666" y="376" width="100" height="100"/>
-                                <color key="backgroundColor" name="VanillaCream"/>
+                                <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="100" id="e5U-O2-2mP"/>
                                     <constraint firstAttribute="height" constant="100" id="zq2-Ow-8O7"/>
@@ -26,7 +26,7 @@
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
-                        <color key="backgroundColor" name="VanillaCream"/>
+                        <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="1pv-2C-FNc" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="3SQ-nx-aav"/>
                             <constraint firstItem="1pv-2C-FNc" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="MxB-6t-2IY"/>
@@ -40,8 +40,8 @@
     </scenes>
     <resources>
         <image name="lemon" width="128" height="128"/>
-        <namedColor name="VanillaCream">
-            <color red="0.96078431372549022" green="0.90196078431372551" blue="0.80000000000000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </namedColor>
+        <systemColor name="secondarySystemBackgroundColor">
+            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
     </resources>
 </document>

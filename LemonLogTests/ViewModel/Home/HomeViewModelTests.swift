@@ -36,7 +36,7 @@ final class MockDiaryStore: DiaryProviding {
     func diaries(inWeekOf date: Date) -> [EmotionDiaryModel] { mockDiaries }
 
     func countByEmotion(inWeekOf date: Date) -> [EmotionCategory: Int] {
-        Dictionary(grouping: mockDiaries) { EmotionCategory(rawValue: $0.emotion) ?? .happy_grade_1 }
+        Dictionary(grouping: mockDiaries) { EmotionCategory(rawValue: $0.emotion) ?? ._0 }
             .mapValues(\.count)
     }
     
@@ -110,8 +110,8 @@ final class HomeViewModelTests: XCTestCase {
         
         wait(for: [expectation], timeout: 2.0)
         
-        XCTAssertEqual(viewModel.emotionSummary[.happy_grade_1], 2)
-        XCTAssertEqual(viewModel.emotionSummary[.sad_grade_1], 1)
+        XCTAssertEqual(viewModel.emotionSummary[._2], 2)
+        XCTAssertEqual(viewModel.emotionSummary[._3], 1)
     }
     
 }
