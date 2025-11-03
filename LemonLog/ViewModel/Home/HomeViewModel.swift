@@ -231,7 +231,7 @@ extension HomeViewModel {
             EmotionDiaryModel(
                 id: UUID(),
                 emotion: "\($0)",
-                content: ["좋은 하루였다", "조금 슬펐다"].randomElement()!,
+                content: ["좋은 하루였다가 말았다가 이랬다 저랬다.", "조금 슬펐다가 말았다가 이랬다 저랬다."].randomElement()!,
                 createdAt: Date().addingTimeInterval(-Double($0) * 3600)
             )
         }

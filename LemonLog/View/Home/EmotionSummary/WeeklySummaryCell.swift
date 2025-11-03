@@ -7,6 +7,7 @@
 
 import UIKit
 
+
 class WeeklySummaryCell: UICollectionViewCell {
     
     
@@ -110,7 +111,7 @@ class WeeklySummaryCell: UICollectionViewCell {
     // MARK: ✅ Configure CollectionView
     private func configureCollectionView() {
         let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
+        //layout.scrollDirection = .vertical
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         

@@ -52,7 +52,6 @@ final class HomeViewController: UIViewController {
                 return UICollectionViewCell()
             }
             
-            // UI 테스트용 배경색
             switch section {
             case .quote:
                 guard case .quote(let quoteData) = itemIdentifier,
@@ -67,13 +66,21 @@ final class HomeViewController: UIViewController {
                 return cell
                 
             case .recentEntries:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath)
-                cell.contentView.backgroundColor = .systemBlue
+                guard case .diary(let recentDiary) = itemIdentifier,
+                      let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DiarySummaryCell.reuseIdentifier, for: indexPath) as? DiarySummaryCell else { return UICollectionViewCell() }
+                cell.configure(with: recentDiary)
                 return cell
                 
             case .photoGallery:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath)
-                cell.contentView.backgroundColor = .systemGreen
+                guard case .photo(let image, let diaryID) = itemIdentifier,
+                      let cell = collectionView.dequeueReusableCell(
+                          withReuseIdentifier: PhotoGalleryCell.reuseIdentifier,
+                          for: indexPath
+                      ) as? PhotoGalleryCell else {
+                    return UICollectionViewCell()
+                }
+                
+                cell.configure(with: image, diaryID: diaryID)
                 return cell
             }
 
@@ -119,7 +126,10 @@ final class HomeViewController: UIViewController {
         snapshot.appendItems(homeVM.recentDiaries.map { .diary($0) }, toSection: .recentEntries)
         
         // 4️⃣ 사진 일기
-        snapshot.appendItems(homeVM.diaryImages.map { .photo($0.diaryID) }, toSection: .photoGallery)
+        snapshot.appendItems(
+            homeVM.diaryImages.map { .photo(image: $0.image, diaryID: $0.diaryID) },
+            toSection: .photoGallery
+        )
         
         // 5️⃣ 데이터 적용 (UI 업데이트)
         dataSource.apply(snapshot, animatingDifferences: true)
@@ -169,6 +179,8 @@ final class HomeViewController: UIViewController {
         homeCollectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
         homeCollectionView.register(QuoteCell.self, forCellWithReuseIdentifier: QuoteCell.reuseIdentifier)
         homeCollectionView.register(WeeklySummaryCell.self, forCellWithReuseIdentifier: WeeklySummaryCell.reuseIdentifier)
+        homeCollectionView.register(DiarySummaryCell.self, forCellWithReuseIdentifier: DiarySummaryCell.reuseIdentifier)
+        homeCollectionView.register(PhotoGalleryCell.self, forCellWithReuseIdentifier: PhotoGalleryCell.reuseIdentifier)
         homeCollectionView.register(SectionHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: SectionHeaderView.reuseIdentifier)
     }
     
@@ -269,7 +281,7 @@ final class HomeViewController: UIViewController {
                                               heightDimension: .fractionalHeight(1.0))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
-        item.contentInsets = .init(top: 4, leading: 4, bottom: 4, trailing: 4)
+        item.contentInsets = .init(top: 0, leading: 4, bottom: 4, trailing: 4)
         
         let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                                heightDimension: .absolute(140))
@@ -304,10 +316,10 @@ final class HomeViewController: UIViewController {
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0 / 3.0),
                                               heightDimension: .fractionalHeight(1.0))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        item.contentInsets = .init(top: 4, leading: 4, bottom: 4, trailing: 4)
+        item.contentInsets = .init(top: 0, leading: 4, bottom: 4, trailing: 4)
         
         let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                               heightDimension: .absolute(80))
+                                               heightDimension: .absolute(140))
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
@@ -376,7 +388,7 @@ extension HomeViewController {
         case quote(HappinessQuote)
         case emotionSummary(WeeklyEmotionSummaryModel)
         case diary(EmotionDiaryModel)
-        case photo(String)
+        case photo(image: UIImage?, diaryID: String)
     }
 }
 
