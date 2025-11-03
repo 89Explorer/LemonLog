@@ -94,6 +94,38 @@ final class HomeViewModel: ObservableObject {
 // MARK: ✅ Extension - 요일 별 감정 데이터 가공
 extension HomeViewModel {
     
+    // 주어진 날짜가 속한 주의 "시작일 ~ 종료일 (n주차)" 문자열을 변환
+    func makeWeekDescription(for date: Date = Date()) -> String {
+        let calendar = Calendar.current
+        
+        // 한국 기준: 주 시작을 월요일로 설정
+        var calendarKR = calendar
+        calendarKR.firstWeekday = 2
+        
+        // 주간 범위 계산
+        guard let weekInterval = calendarKR.dateInterval(of: .weekOfYear, for: date) else { return "" }
+        
+        // 시작일 (월요일)
+        let startOfWeek = weekInterval.start
+        
+        // 종료일 (일요일) - 시작일 + 6일
+        guard let endOfWeek = calendarKR.date(byAdding: .day, value: 6, to: startOfWeek) else { return "" }
+        
+        // 주차 계산 (해당 달 기준)
+        let weekOfMonth = calendarKR.component(.weekOfMonth, from: date)
+        
+        // 날짜 포맷
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "M월 d일"
+        
+        let startText = formatter.string(from: startOfWeek)
+        let endText = formatter.string(from: endOfWeek)
+        
+        // 최종 문자열 조합
+        return "\(startText) ~ \(endText) (\(weekOfMonth)주차)"
+    }
+    
     // 요일별 가장 많이 선택된 감정
     // 예시: 월요일: [😀, 😡, 😀] → 😀
     var mostFrequentEmotionByWeekday: [DiaryCoreDataManager.Weekday: EmotionCategory] {
@@ -150,6 +182,20 @@ extension HomeViewModel {
 }
 
 
+// MARK: ✅ Extension - WeeklyEmotionSummaryModel
+extension HomeViewModel {
+    
+    // View에 전달할 주간 감정 요약 데이터 생성
+    func makeWeeklyEmotionSummaryModel(for date: Date = Date()) -> WeeklyEmotionSummaryModel {
+        WeeklyEmotionSummaryModel(
+            weekDescription: makeWeekDescription(for: date),
+            top3Emotion: top3EmotionsThisWeek,
+            mostFrequentByWeekday: mostFrequentEmotionByWeekday
+        )
+    }
+}
+
+
 // MARK: ✅ Extension - Mock Preview용 ViewModel
 extension HomeViewModel {
     
@@ -160,7 +206,7 @@ extension HomeViewModel {
         // ✅ 명언 섹션 (하드코딩된 테스트 데이터)
         vm.quote = HappinessQuote(
             id: 1,
-            content: "“당신이 은혜를 베푼 사람보다는 당신에게 호의를 베푼 사람이 당신에게 또 다른 호의를 베풀 준비가 되어있을 것이다.",
+            content: "당신이 은혜를 베푼 사람보다는 당신에게 호의를 베푼 사람이 당신에게 또 다른 호의를 베풀 준비가 되어있을 것이다.",
             author: "벤자민 프랭클린",
             description: "18세기 정치가이자 과학자, 실용적 지혜의 상징",
             link: nil

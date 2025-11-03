@@ -61,8 +61,9 @@ final class HomeViewController: UIViewController {
                 return cell
     
             case .emotionSummary:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath)
-                cell.contentView.backgroundColor = .systemRed
+                guard case .emotionSummary(let emotionSummary) = itemIdentifier,
+                      let cell = collectionView.dequeueReusableCell(withReuseIdentifier: WeeklySummaryCell.reuseIdentifier, for: indexPath) as? WeeklySummaryCell else { return UICollectionViewCell() }
+                cell.configure(weekText: emotionSummary.weekDescription, emotions: emotionSummary.mostFrequentByWeekday, top3: emotionSummary.top3Emotion)
                 return cell
                 
             case .recentEntries:
@@ -78,21 +79,25 @@ final class HomeViewController: UIViewController {
 
         })
         
-        dataSource.supplementaryViewProvider = { (collectionView, kind, indexPath) -> UICollectionReusableView? in
-            guard kind == UICollectionView.elementKindSectionHeader else { return nil }
-            guard let section = HomeSection(rawValue: indexPath.section) else { return nil }
-            
-            guard let header = collectionView.dequeueReusableSupplementaryView(
-                ofKind: kind,
-                withReuseIdentifier: SectionHeaderView.reuseIdentifier,
-                for: indexPath
-            ) as? SectionHeaderView else {
+        // SupplementaryViewProvider: Header + Footer 둘 다 처리
+        dataSource.supplementaryViewProvider = { collectionView, kind, indexPath in
+                guard let section = HomeSection(rawValue: indexPath.section) else { return nil }
+                
+                // 🔹 Header 처리
+                if kind == UICollectionView.elementKindSectionHeader {
+                    guard let header = collectionView.dequeueReusableSupplementaryView(
+                        ofKind: kind,
+                        withReuseIdentifier: SectionHeaderView.reuseIdentifier,
+                        for: indexPath
+                    ) as? SectionHeaderView else {
+                        return nil
+                    }
+                    header.configure(with: section.title, subtitle: section.subtitle)
+                    return header
+                }
+                
                 return nil
             }
-            
-            header.configure(with: section.title, subtitle: section.subtitle)
-            return header
-        }
     }
     
     
@@ -107,8 +112,8 @@ final class HomeViewController: UIViewController {
         }
         
         // 2️⃣ 감정 요약
-        let summaryItems = homeVM.emotionSummary.map { "\($0.key.rawValue): \($0.value)" }
-        snapshot.appendItems(summaryItems.map { .emotionSummary($0) }, toSection: .emotionSummary)
+        let summaryModel = homeVM.makeWeeklyEmotionSummaryModel()
+        snapshot.appendItems([.emotionSummary(summaryModel)], toSection: .emotionSummary)
         
         // 3️⃣ 최근 일기
         snapshot.appendItems(homeVM.recentDiaries.map { .diary($0) }, toSection: .recentEntries)
@@ -163,6 +168,7 @@ final class HomeViewController: UIViewController {
         
         homeCollectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
         homeCollectionView.register(QuoteCell.self, forCellWithReuseIdentifier: QuoteCell.reuseIdentifier)
+        homeCollectionView.register(WeeklySummaryCell.self, forCellWithReuseIdentifier: WeeklySummaryCell.reuseIdentifier)
         homeCollectionView.register(SectionHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: SectionHeaderView.reuseIdentifier)
     }
     
@@ -190,12 +196,14 @@ final class HomeViewController: UIViewController {
     private func createQuoteSectionLayout() -> NSCollectionLayoutSection {
         
         // 아이템 정의 
-        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                              heightDimension: .fractionalHeight(1.0))
+        let itemSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .fractionalHeight(1.0))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                               heightDimension: .absolute(140))
+        let groupSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .absolute(140))
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
@@ -222,30 +230,20 @@ final class HomeViewController: UIViewController {
     // MARK: ✅ createEmotionSummarySectionLayout - 주간 감정 요약 섹션 구성
     private func createEmotionSummarySectionLayout() -> NSCollectionLayoutSection {
        
-        // 1️⃣ 아이템 정의 (각 카드)
+        // 아이템 정의
         let itemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(0.22),    // 한 줄에 4~5개 보이도록
-            heightDimension: .fractionalHeight(1.0)
-        )
-        
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .estimated(100.0))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        // 아이템 간 간격 설정: 각 아이템 주변에 상,하,좌,우로 4 포인트의 여백 추가
-        item.contentInsets = .init(top: 4, leading: 4, bottom: 4, trailing: 4)
+        //item.contentInsets = .init(top: 4, leading: 4, bottom: 4, trailing: 4)
         
-        // 2️⃣ 그룹 정의
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(100)  // 카드 높이
-        )
+            heightDimension: .estimated(100))
+        let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
         
-        // 수평 그룹 생성
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-        
-        // 3️⃣ 섹션 정의
         let section = NSCollectionLayoutSection(group: group)
-        section.orthogonalScrollingBehavior = .continuous
         section.contentInsets = .init(top: 16, leading: 16, bottom: 16, trailing: 16)
-        section.interGroupSpacing = 8
         
         // 섹션 헤더 추가
         let headerSize = NSCollectionLayoutSize(
@@ -260,7 +258,6 @@ final class HomeViewController: UIViewController {
         )
         
         section.boundarySupplementaryItems = [header]
-        
         return section
     }
 
@@ -310,7 +307,7 @@ final class HomeViewController: UIViewController {
         item.contentInsets = .init(top: 4, leading: 4, bottom: 4, trailing: 4)
         
         let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                               heightDimension: .absolute(140))
+                                               heightDimension: .absolute(80))
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
@@ -377,9 +374,19 @@ extension HomeViewController {
     // Home 화면의 각 섹션별 데이터 아이템
     enum HomeItem: Hashable, Sendable {
         case quote(HappinessQuote)
-        case emotionSummary(String)
+        case emotionSummary(WeeklyEmotionSummaryModel)
         case diary(EmotionDiaryModel)
         case photo(String)
     }
 }
+
+
+// MARK: ✅ Extension - HomeItem 내의 emotionSummary 케이스 데이터타입
+// 이 섹션에 들어가는 데이터는 총 3개 - 이를 묶을 목적으로 구조체 설정 
+struct WeeklyEmotionSummaryModel: Hashable {
+    let weekDescription: String
+    let top3Emotion: [EmotionCategory]
+    let mostFrequentByWeekday: [DiaryCoreDataManager.Weekday: EmotionCategory]
+}
+
 

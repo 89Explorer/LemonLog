@@ -41,7 +41,7 @@ enum EmotionCategory: String, CaseIterable {
     
     // 이미지 이름과 rawValue 통일 -> 중복 switch 제거
     var emotionImage: UIImage? {
-        return UIImage(named: "lemon_\(rawValue)")
+        return UIImage(named: "\(rawValue)")
     }
     
 }
