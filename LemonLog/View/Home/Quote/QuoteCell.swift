@@ -36,7 +36,8 @@ class QuoteCell: UICollectionViewCell {
     
     // MARK: ✅ UI Setup
     private func configureUI() {
-        contentView.backgroundColor = UIColor.vanillaCream
+        //contentView.backgroundColor = UIColor.vanillaCream
+        contentView.backgroundColor = .secondarySystemBackground
         contentView.layer.cornerRadius = 16
         contentView.layer.shadowColor = UIColor.black.withAlphaComponent(0.5).cgColor
         contentView.layer.shadowOpacity = 0.3

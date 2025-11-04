@@ -36,6 +36,7 @@ final class HomeViewController: UIViewController {
     // MARK: ✅ Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        configureNavigation()
         configureUI()
         configureDataSource()
         bindViewModel()
@@ -159,8 +160,7 @@ final class HomeViewController: UIViewController {
     
     // MARK: ✅ UI Setup
     private func configureUI() {
-        view.backgroundColor = .secondarySystemBackground
-        //view.backgroundColor = UIColor(named: "VanillaCream")
+        view.backgroundColor = .pastelLemon
         
         homeCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         
@@ -170,7 +170,7 @@ final class HomeViewController: UIViewController {
         view.addSubview(homeCollectionView)
         
         NSLayoutConstraint.activate([
-            homeCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            homeCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 4),
             homeCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             homeCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             homeCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
@@ -402,3 +402,115 @@ struct WeeklyEmotionSummaryModel: Hashable {
 }
 
 
+
+// MARK: ✅ Extension - Navigation 셋팅
+extension HomeViewController {
+    
+    private func configureNavigation() {
+        
+        // MARK: ✅ Navigation - 로고 이미지 + 앱 이름
+        // 원본 이미지 -> 리사이즈 -> 원본 렌더링
+        let logo = UIImage(named: "lemon")?
+            .resized(to: CGSize(width: 32, height: 32))
+            .withRenderingMode(.alwaysOriginal)
+        
+        // 로고 이미지뷰
+        let imageView = UIImageView(image: logo)
+        imageView.contentMode = .scaleAspectFit
+        imageView.setContentHuggingPriority(.required, for: .horizontal)
+        imageView.setContentCompressionResistancePriority(.required, for: .horizontal)
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            imageView.widthAnchor.constraint(equalToConstant: 32),
+            imageView.heightAnchor.constraint(equalToConstant: 32)
+        ])
+        
+        // 타이틀 라벨
+        let titleLabel = UILabel()
+        titleLabel.text = "레몬로그"
+        titleLabel.font = .systemFont(ofSize: 20, weight: .black)
+        titleLabel.textColor = .black
+        
+        // 스택으로 묶기
+        let stackView = UIStackView(arrangedSubviews: [imageView, titleLabel])
+        stackView.axis = .horizontal
+        stackView.alignment = .center
+        stackView.spacing = 2
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        // 컨테이너 뷰 (탭 영역 넓히기 + 오토레이아웃 고정)
+        let container = UIView(frame: CGRect(x: 0, y: 0, width: 120, height: 32))
+        container.addSubview(stackView)
+        container.isUserInteractionEnabled = true
+        NSLayoutConstraint.activate([
+            stackView.topAnchor.constraint(equalTo: container.topAnchor),
+            stackView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            stackView.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+        ])
+        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: container)
+        
+        // 탭 액션 연결
+        let logoTap = UITapGestureRecognizer(target: self, action: #selector(didTapLogo))
+        container.addGestureRecognizer(logoTap)
+        
+        
+        // MARK: ✅ Navigation Button - (Search, List, Alarm)
+        // 아이콘 이름 배열
+        let buttonsInfo: [(systemName: String, action: Selector)] = [
+            ("magnifyingglass", #selector(didTapSearch)),
+            ("line.3.horizontal", #selector(didTapList)),
+            ("bell", #selector(didTapBell))
+        ]
+        
+        // 버튼 생성
+        let rightButtons: [UIBarButtonItem] = buttonsInfo.map { info in
+            let button = UIButton(type: .system)
+            button.setImage(UIImage(systemName: info.systemName), for: .normal)
+            button.tintColor = .black
+            button.frame = CGRect(x: 0, y: 0, width: 28, height: 28)
+            
+            // 터치 인식 정확하게
+            var configuration = UIButton.Configuration.plain()
+            configuration.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+            
+            button.configuration = configuration
+            
+            button.addTarget(self, action: info.action, for: .touchUpInside)
+            return UIBarButtonItem(customView: button)
+        }
+        
+        // 버튼 배열 적용 (bell → list → search 순서)
+        navigationItem.rightBarButtonItems = rightButtons.reversed()
+        
+    }
+    
+    
+    // MARK: ✅ @objc 액션 메서드
+    
+    // 로고가 눌리면 동작하는 액션
+    @objc private func didTapLogo() {
+        // TODO: 원하는 액션
+        print("🍋 레몬로그 tapped")
+    }
+    
+    // 검색 버튼이 눌리면 동작하는 액션
+    @objc private func didTapSearch() {
+        print("🔍 검색 버튼 탭됨")
+        // TODO: 검색 화면 이동
+    }
+
+    // 리스트 버튼이 눌리면 동작하는 액션
+    @objc private func didTapList() {
+        print("📋 리스트 버튼 탭됨")
+        // TODO: 목록 화면 이동
+    }
+
+    // 알람 버튼이 눌리면 동작하는 액션
+    @objc private func didTapBell() {
+        print("🔔 알림 버튼 탭됨")
+        // TODO: 알림 화면 이동
+    }
+
+}
