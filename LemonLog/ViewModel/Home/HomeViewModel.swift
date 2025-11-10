@@ -247,6 +247,18 @@ extension HomeViewModel {
 // MARK: ✅ Mock Store
 @MainActor
 final class MockDiaryStore: DiaryProviding {
+    func save(_ diary: EmotionDiaryModel) -> Bool {
+        return true
+    }
+    
+    func update(_ diary: EmotionDiaryModel) -> Bool {
+        return true
+    }
+    
+    func delete(id: String) -> Bool {
+        return true
+    }
+    
     
     var mockDiaries: [EmotionDiaryModel] = []
     var mockImages: [(UIImage?, String)] = []

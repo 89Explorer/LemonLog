@@ -31,6 +31,7 @@ final class HomeViewController: UIViewController {
     
     // MARK: ✅ UI
     private var homeCollectionView: UICollectionView!
+    private var floatingButton: UIButton!
     
     
     // MARK: ✅ Life Cycle
@@ -38,6 +39,7 @@ final class HomeViewController: UIViewController {
         super.viewDidLoad()
         configureNavigation()
         configureUI()
+        configureButtonAction()
         configureDataSource()
         bindViewModel()
         applySnapshot()
@@ -158,7 +160,7 @@ final class HomeViewController: UIViewController {
 
     
     
-    // MARK: ✅ UI Setup
+    // MARK: ✅ Configure UI
     private func configureUI() {
         view.backgroundColor = .pastelLemon
         
@@ -167,13 +169,38 @@ final class HomeViewController: UIViewController {
         homeCollectionView.showsVerticalScrollIndicator = false
         homeCollectionView.translatesAutoresizingMaskIntoConstraints = false
         homeCollectionView.backgroundColor = .clear
+        
+        floatingButton = UIButton(type: .custom)
+        floatingButton.layer.cornerRadius = 30
+        floatingButton.clipsToBounds = true
+        
+        floatingButton.backgroundColor = .sageGreen
+        
+        let configuration = UIImage.SymbolConfiguration(pointSize: 24, weight: .bold)
+        let plusImage = UIImage(systemName: "plus", withConfiguration: configuration)
+        floatingButton.setImage(plusImage, for: .normal)
+        floatingButton.tintColor = .black
+        
+        floatingButton.layer.shadowColor = UIColor.black.cgColor
+        floatingButton.layer.shadowOffset = CGSize(width: 0, height: 4)
+        floatingButton.layer.shadowRadius = 8
+        floatingButton.layer.shadowOpacity = 0.3
+        floatingButton.layer.masksToBounds = false
+        floatingButton.translatesAutoresizingMaskIntoConstraints = false
+        
         view.addSubview(homeCollectionView)
+        view.addSubview(floatingButton)
         
         NSLayoutConstraint.activate([
             homeCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 4),
             homeCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             homeCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            homeCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            homeCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            
+            floatingButton.widthAnchor.constraint(equalToConstant: 60),
+            floatingButton.heightAnchor.constraint(equalToConstant: 60),
+            floatingButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+            floatingButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
         ])
         
         homeCollectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
@@ -341,6 +368,23 @@ final class HomeViewController: UIViewController {
         section.boundarySupplementaryItems = [header]
         
         return section
+    }
+    
+    
+    // MARK: ✅ Configure Button Action
+    private func configureButtonAction() {
+        floatingButton.addTarget(self, action: #selector(floatingButtonTapped), for: .touchUpInside)
+    }
+    
+    
+    // MARK: ✅ Action Method - Floating Button 탭 시 호출
+    @objc private func floatingButtonTapped() {
+        // 감정일기를 작성하는 화면으로 이동하는 로직
+        let diaryEditorVC = DiaryEditorViewController(mode: .create)
+        let naviToDiaryEditorVC = UINavigationController(rootViewController: diaryEditorVC)
+        naviToDiaryEditorVC.modalPresentationStyle = .fullScreen
+        naviToDiaryEditorVC.modalTransitionStyle = .coverVertical
+        present(naviToDiaryEditorVC, animated: true)
     }
 
 }

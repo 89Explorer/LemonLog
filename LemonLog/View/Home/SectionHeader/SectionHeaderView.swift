@@ -37,10 +37,10 @@ class SectionHeaderView: UICollectionReusableView {
         let separtor: UIView = UIView(frame: .zero)
         separtor.backgroundColor = .quaternaryLabel
         
-        titleLabel.font = .systemFont(ofSize: 20, weight: .bold)
+        titleLabel.font = .systemFont(ofSize: 16, weight: .bold)
         titleLabel.textColor = .label
         
-        subTitleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
+        subTitleLabel.font = .systemFont(ofSize: 12, weight: .semibold)
         subTitleLabel.textColor = .secondaryLabel
         
         let stackView: UIStackView = UIStackView(arrangedSubviews: [titleLabel, subTitleLabel, separtor])

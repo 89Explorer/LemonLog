@@ -18,3 +18,24 @@
 
 "home_section_photo_gallery_title" = "최근의 장면들";
 "home_section_photo_gallery_subtitle" = "사진 속 하루, 그때의 감정";
+
+
+// DiaryEditor - DiaryEditorSection
+"diary_editor_section_date_title" = "날짜";
+"diary_editor_section_emotion_title" = "내가 느낀 감정";
+"diary_editor_section_content_title" = "내용";
+"diary_editor_section_photogallery_title" = "사진 (최대 6장)";
+"diary_editor_section_save_button_title" = "저장";
+
+
+// DiaryEditorViewModel - NavigationTitle
+"diary_editor_title_create" = "오늘의, 마음";
+"diary_editor_title_edit" = "그날의, 기록";
+
+
+// CustomCalendarViewController - confirm Button
+"calendar_confirm_button" = "선택하기";
+
+
+// CalendarDayCell - todayLabel
+"today" = "오늘";

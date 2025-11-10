@@ -24,7 +24,7 @@ protocol DiaryProviding: AnyObject {
     var snapshot: [EmotionDiaryModel] { get }
     
     
-    // MARK: ✅ Method
+    // MARK: ✅ Read
     // 특정 일기 조회
     func diary(with id: String) -> EmotionDiaryModel?
     
@@ -41,5 +41,16 @@ protocol DiaryProviding: AnyObject {
     
     // 대표 이미지 로드
     func fetchFirstImages() async -> [(image: UIImage?, diaryID: String)]
+    
+    
+    // MARK: ✅ Write
+    @discardableResult
+    func save(_ diary: EmotionDiaryModel) -> Bool
+    
+    @discardableResult
+    func update(_ diary: EmotionDiaryModel) -> Bool
+    
+    @discardableResult
+    func delete(id: String) -> Bool 
     
 }
