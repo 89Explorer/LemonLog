@@ -50,7 +50,9 @@ final class DiaryEditorViewController: UIViewController {
          
             switch itemIdentifier.section {
                 
+                // 날짜 선택하는 섹션
             case .date:
+                
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DiaryDateCell.reuseIdentifier, for: indexPath) as? DiaryDateCell else { return UICollectionViewCell() }
                 cell.configure(date: Date())
                 
@@ -79,7 +81,28 @@ final class DiaryEditorViewController: UIViewController {
                     }
                     self.present(calendarVC, animated: true)
                 }
+                return cell
                 
+            case .emotion:
+                
+                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: EmotionCell.reuseIdentifier, for: indexPath) as? EmotionCell else { return UICollectionViewCell() }
+                
+                cell.onAddButtonTapped = {
+                    let emotionVC = EmotionViewController()
+                    
+                    if let sheet = emotionVC.sheetPresentationController {
+                        sheet.detents = [.large()]
+                        sheet.prefersGrabberVisible = true
+                    }
+                    
+                    emotionVC.onEmotionSelected = { [weak self] emotion in
+                        guard let self = self else { return }
+                        self.diaryEditorVM.diary.emotion = emotion.rawValue
+                        cell.configure(with: emotion)
+                    }
+                    
+                    self.present(emotionVC, animated: true)
+                }
                 return cell
                 
             default:
@@ -142,6 +165,7 @@ final class DiaryEditorViewController: UIViewController {
         ])
         
         diaryCollectionView.register(DiaryDateCell.self, forCellWithReuseIdentifier: DiaryDateCell.reuseIdentifier)
+        diaryCollectionView.register(EmotionCell.self, forCellWithReuseIdentifier: EmotionCell.reuseIdentifier)
         
         diaryCollectionView.register(DiaryEditorSectionHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: DiaryEditorSectionHeaderView.reuseIdentifier)
         
@@ -155,6 +179,8 @@ final class DiaryEditorViewController: UIViewController {
             guard let sectionType = DiaryEditorSection(rawValue: sectionIndex) else { return nil }
             
             switch sectionType {
+            case .emotion:
+                return self.createBasicSection(height: 80)
             default: return self.createBasicSection(height: 52)
             }
         }

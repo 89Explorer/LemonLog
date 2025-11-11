@@ -37,7 +37,6 @@ enum EmotionCategory: String, CaseIterable {
     case _22 = "22"
     case _23 = "23"
     case _24 = "24"
-    case _25 = "25"
     
     // 이미지 이름과 rawValue 통일 -> 중복 switch 제거
     var emotionImage: UIImage? {

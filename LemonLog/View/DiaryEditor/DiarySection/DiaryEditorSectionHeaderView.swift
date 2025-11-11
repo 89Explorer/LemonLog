@@ -10,7 +10,7 @@ import UIKit
 class DiaryEditorSectionHeaderView: UICollectionReusableView {
         
     
-    // MARK: ✅ Static
+    // MARK: ✅ ReuseIdentifier
     static let reuseIdentifier: String = "DiaryEditorSectionHeaderView"
     
     
