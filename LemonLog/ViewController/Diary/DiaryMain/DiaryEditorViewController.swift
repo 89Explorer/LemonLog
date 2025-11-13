@@ -17,6 +17,9 @@ final class DiaryEditorViewController: UIViewController {
     private var cancellables = Set<AnyCancellable>()
     private var dataSource: UICollectionViewDiffableDataSource<DiaryEditorSection, DiaryEditorItem>!
     
+    private var keyboardHeight: CGFloat = 0
+    private var activeTextViewFrame: CGRect?
+    
     
     // MARK: ✅ UI
     private var diaryCollectionView: UICollectionView!
@@ -30,6 +33,14 @@ final class DiaryEditorViewController: UIViewController {
         configureNavigation()
         configureDataSource()
         applySnapshot()
+        registerForKeyboardNotifications()
+        
+        if let layout = diaryCollectionView.collectionViewLayout as? UICollectionViewCompositionalLayout {
+            layout.configuration = UICollectionViewCompositionalLayoutConfiguration()
+            layout.configuration.scrollDirection = .vertical
+        }
+        diaryCollectionView.alwaysBounceVertical = true
+
     }
     
     
@@ -105,6 +116,25 @@ final class DiaryEditorViewController: UIViewController {
                 }
                 return cell
                 
+            case .content:
+                
+                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DiaryContentCell.reuseIdentifier, for: indexPath) as? DiaryContentCell else {
+                    return UICollectionViewCell()
+                }
+                
+                cell.onFocusChanged = { [weak self] view in
+                    guard let self else { return }
+                    // ✅ 포커스된 텍스트뷰의 전역 좌표를 저장
+                    self.activeTextViewFrame = view.convert(view.bounds, to: self.diaryCollectionView)
+                }
+                
+                cell.onContentChanged = { [weak self] content in
+                    guard let self else { return }
+                    self.diaryEditorVM.diary.content = content
+                }
+                
+                return cell
+                
             default:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath)
                 return cell
@@ -154,6 +184,7 @@ final class DiaryEditorViewController: UIViewController {
         diaryCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         diaryCollectionView.translatesAutoresizingMaskIntoConstraints = false
         diaryCollectionView.backgroundColor = .clear
+        diaryCollectionView.keyboardDismissMode = .interactive
         
         view.addSubview(diaryCollectionView)
         
@@ -166,6 +197,7 @@ final class DiaryEditorViewController: UIViewController {
         
         diaryCollectionView.register(DiaryDateCell.self, forCellWithReuseIdentifier: DiaryDateCell.reuseIdentifier)
         diaryCollectionView.register(EmotionCell.self, forCellWithReuseIdentifier: EmotionCell.reuseIdentifier)
+        diaryCollectionView.register(DiaryContentCell.self, forCellWithReuseIdentifier: DiaryContentCell.reuseIdentifier)
         
         diaryCollectionView.register(DiaryEditorSectionHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: DiaryEditorSectionHeaderView.reuseIdentifier)
         
@@ -181,6 +213,8 @@ final class DiaryEditorViewController: UIViewController {
             switch sectionType {
             case .emotion:
                 return self.createBasicSection(height: 80)
+            case .content:
+                return self.createContentSection()
             default: return self.createBasicSection(height: 52)
             }
         }
@@ -201,6 +235,80 @@ final class DiaryEditorViewController: UIViewController {
         let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
         section.boundarySupplementaryItems = [header]
         return section
+    }
+    
+    // MARK: ✅ createContentSection - contentSection
+    private func createContentSection() -> NSCollectionLayoutSection {
+        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                              heightDimension: .estimated(200))
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        
+        let groupSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .estimated(200)
+        )
+        
+        let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
+        
+        let section = NSCollectionLayoutSection(group: group)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 20, trailing: 16)
+        
+        let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(40))
+        
+        let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
+        section.boundarySupplementaryItems = [header]
+        return section
+    }
+    
+    
+    // MARK: ✅ registerForKeyboardNotifications
+    private func registerForKeyboardNotifications() {
+        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    
+    // MARK: ✅ handleKeyboardShow - 키보드 보이기
+    @objc private func handleKeyboardShow(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let frame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
+        
+        keyboardHeight = frame.height
+        
+        diaryCollectionView.contentInset.bottom = keyboardHeight + 20
+        diaryCollectionView.verticalScrollIndicatorInsets.bottom = keyboardHeight
+        
+        guard let textViewFrame = activeTextViewFrame else { return }
+
+        // 화면에서 키보드를 제외한 '남은 영역'
+        let visibleHeight = view.bounds.height - keyboardHeight
+
+        // 텍스트뷰의 중앙 위치
+        let textViewCenterY = textViewFrame.midY
+
+        // 텍스트뷰가 화면의 절반 아래로 내려가 있으면 키보드에 가림 → 올려준다
+        if textViewCenterY > visibleHeight * 0.6 {
+
+            // 텍스트뷰를 화면 중앙 slightly above 로 위치시키는 offset
+            let targetY = textViewFrame.minY - (visibleHeight * 0.3)
+
+            let rect = CGRect(
+                x: 0,
+                y: targetY,
+                width: view.bounds.width,
+                height: textViewFrame.height + keyboardHeight
+            )
+            
+            diaryCollectionView.scrollRectToVisible(rect, animated: true)
+        }
+    }
+    
+    
+    // MARK: ✅ handleKeyboardHide - 키보드 숨기기
+    @objc private func handleKeyboardHide(_ notification: Notification) {
+        diaryCollectionView.contentInset.bottom = 0
+        diaryCollectionView.verticalScrollIndicatorInsets.bottom = 0
+        activeTextViewFrame = nil
     }
     
 }
