@@ -34,11 +34,8 @@ final class DiaryEditorViewController: UIViewController {
         configureDataSource()
         applySnapshot()
         registerForKeyboardNotifications()
-        
-        if let layout = diaryCollectionView.collectionViewLayout as? UICollectionViewCompositionalLayout {
-            layout.configuration = UICollectionViewCompositionalLayoutConfiguration()
-            layout.configuration.scrollDirection = .vertical
-        }
+
+        //
         diaryCollectionView.alwaysBounceVertical = true
 
     }
@@ -290,7 +287,7 @@ final class DiaryEditorViewController: UIViewController {
         if textViewCenterY > visibleHeight * 0.6 {
 
             // 텍스트뷰를 화면 중앙 slightly above 로 위치시키는 offset
-            let targetY = textViewFrame.minY - (visibleHeight * 0.3)
+            let targetY = textViewFrame.minY - (visibleHeight * 0.475)
 
             let rect = CGRect(
                 x: 0,

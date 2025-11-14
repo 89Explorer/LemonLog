@@ -34,6 +34,15 @@ final class DiaryContentView: UIView {
     private let placeholderLabel2: UILabel = UILabel()
     private let counterLabel: UILabel = UILabel()
     
+    // Accessory - 키보드 내리기
+    private lazy var accessory: DiaryAccessoryView = {
+        let view = DiaryAccessoryView()
+        view.onKeyboardDismiss = { [weak self] in
+            self?.textView.resignFirstResponder()
+        }
+        return view
+    }()
+    
     
     // MARK: ✅ Init
     init(titleKey: String, guideKey: String, placeholderKey1: String, placeholderKey2: String) {
@@ -82,6 +91,8 @@ final class DiaryContentView: UIView {
         textView.delegate = self
         textView.isScrollEnabled = true
         textView.textContainerInset = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+        
+        textView.inputAccessoryView = accessory    // 액세서리 적용
         
         // Placeholder ------------------------------
         placeholderLabel1.text = placeholderText1
