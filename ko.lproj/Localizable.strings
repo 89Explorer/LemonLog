@@ -62,3 +62,9 @@
 "diary.action.guide" = "  이 경험을 통해 나를 더 건강하게 지켜줄 수 있는 '작고 구체적인' 행동 계획을 한두 가지 적어보세요. 나 자신을 응원하는 마음으로요.";
 "diary.action.placeholder1" = "예: 다음 발표 전에 3회 이상 소리 내어 연습하기.";
 "diary.action.placeholder2" = "예: 다음에 서운함을 느낄 때, 감정이 가라앉은 후 A에게 솔직하게 '네가 내 이야기를 들어주지 않아 조금 서운했어'라고 말해보기.";
+
+
+// Info - 키메라, 갤러리 권한 요청 메시지
+"NSCameraUsageDescription" = "일기 작성 시 사진 촬영 기능을 사용하기 위해 카메라 접근 권한이 필요합니다.";
+"NSPhotoLibraryUsageDescription" = "일기에 사진을 첨부하기 위해 사진 라이브러리 접근 권한이 필요합니다.";
+
