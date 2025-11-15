@@ -6,7 +6,7 @@
   
 */
 
-// Home - HomeSection 
+/* Home - HomeSection */
 "home_section_quote_title" = "오늘의 한마디";
 "home_section_quote_subtitle" = "마음을 가만히, 하루를 새롭게";
 
@@ -20,28 +20,28 @@
 "home_section_photo_gallery_subtitle" = "사진 속 하루, 그때의 감정";
 
 
-// DiaryEditor - DiaryEditorSection
+/* DiaryEditor - DiaryEditorSection */
 "diary_editor_section_date_title" = "날짜";
 "diary_editor_section_emotion_title" = "내가 느낀 감정";
 "diary_editor_section_content_title" = "내용";
-"diary_editor_section_photogallery_title" = "사진 (최대 6장)";
+"diary_editor_section_photogallery_title" = "사진";
 "diary_editor_section_save_button_title" = "저장";
 
 
-// DiaryEditorViewModel - NavigationTitle
+/* DiaryEditorViewModel - NavigationTitle */
 "diary_editor_title_create" = "오늘의, 마음";
 "diary_editor_title_edit" = "그날의, 기록";
 
 
-// CustomCalendarViewController - confirm Button
+/* CustomCalendarViewController - confirm Button */
 "calendar_confirm_button" = "선택하기";
 
 
-// CalendarDayCell - todayLabel
+/* CalendarDayCell - todayLabel */
 "today" = "오늘";
 
 
-// DiaryContentView - guideLabel, textView, placeHolderLabel
+/* DiaryContentView - guideLabel, textView, placeHolderLabel */
 "diary.situation.title" = "📍 무슨 일이 있었나요?";
 "diary.situation.guide" = "  판단 없이 객관적인 사실만 기록해 주세요. 누가, 언제, 어디서, 무엇을 했는지, 있는 그대로 담아주세요.";
 "diary.situation.placeholder1" = "예 1: 오늘 오후 3시, 중요한 팀 회의에서 발표를 마쳤습니다.";
@@ -64,7 +64,16 @@
 "diary.action.placeholder2" = "예: 다음에 서운함을 느낄 때, 감정이 가라앉은 후 A에게 솔직하게 '네가 내 이야기를 들어주지 않아 조금 서운했어'라고 말해보기.";
 
 
-// Info - 키메라, 갤러리 권한 요청 메시지
-"NSCameraUsageDescription" = "일기 작성 시 사진 촬영 기능을 사용하기 위해 카메라 접근 권한이 필요합니다.";
-"NSPhotoLibraryUsageDescription" = "일기에 사진을 첨부하기 위해 사진 라이브러리 접근 권한이 필요합니다.";
+/* Photo Source Sheet */
+"photo.sheet.gallery" = "사진 보관함에서 선택하기";
+"photo.sheet.camera"  = "사진 찍기";
+"photo.sheet.file"    = "파일 선택";
+"photo.sheet.cancel"  = "취소";
 
+
+/* Permission Alert */
+"photo.permission.camera.title" = "카메라 접근 불가";
+"photo.permission.album.title"  = "사진 보관함 접근 불가";
+"photo.permission.message"      = "설정 > 개인정보 보호에서 권한을 허용해주세요";
+"photo.permission.gotoSetting"  = "설정 이동";
+"photo.permission.confirm"      = "확인";

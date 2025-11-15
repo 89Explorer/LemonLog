@@ -7,6 +7,7 @@
 
 import UIKit
 import Combine
+import UniformTypeIdentifiers
 
 
 final class DiaryEditorViewController: UIViewController {
@@ -19,6 +20,8 @@ final class DiaryEditorViewController: UIViewController {
     
     private var keyboardHeight: CGFloat = 0
     private var activeTextViewFrame: CGRect?
+    
+    private var currentPhotoCell: DiaryPhotoGalleryCell?
     
     
     // MARK: ✅ UI
@@ -132,6 +135,62 @@ final class DiaryEditorViewController: UIViewController {
                 
                 return cell
                 
+            case .photogallery:
+                
+                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DiaryPhotoGalleryCell.reuseIdentifier, for: indexPath) as? DiaryPhotoGalleryCell else {
+                    return UICollectionViewCell()
+                }
+                
+                // 기존의 Cell 에서 parentViewController()를 통해 호출하는 방식에서 클로저로 변환
+                cell.onAddPhotoTapped = { [weak self] in
+                    self?.showPhotoSourceActionSheet(from: cell)
+                }
+                
+                // 사진첩에서 선택
+                cell.onRequestPhotoLibrary = { [weak self] in
+                    guard let self else { return }
+                    
+                    MediaPermissionManager.shared.checkAndRequestIfNeeded(.album) { granted in
+                        if granted {
+                            self.openPhotoPicker()
+                        } else {
+                            self.showPermissionAlert(type: .album)
+                        }
+                    }
+                }
+                
+                // 카메라 촬영
+                cell.onRequestCamera = { [weak self] in
+                    guard let self else { return }
+                    
+                    MediaPermissionManager.shared.checkAndRequestIfNeeded(.camera) { granted in
+                        if granted {
+                            self.openCamera()
+                        } else {
+                            self.showPermissionAlert(type: .camera)
+                        }
+                    }
+                }
+                
+                // 파일 선택
+                cell.onRequestDocument = { [weak self] in
+                    self?.presentDocumentPicker()
+                }
+                
+                // 이미지 전체보기
+                cell.onPreviewRequested = { [weak self] images, startIndex in
+                    guard let self else { return }
+                    let previewVC = PhotoPreviewViewController(images: images, startIndex: startIndex)
+                    self.present(previewVC, animated: true)
+                }
+                
+                // 이미지 변경될 때마다 ViewModel에 반영
+                cell.onImagesUpdated = { [weak self] images in
+                    self?.diaryEditorVM.diary.images = images
+                }
+             
+                return cell
+                
             default:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath)
                 return cell
@@ -195,12 +254,14 @@ final class DiaryEditorViewController: UIViewController {
         diaryCollectionView.register(DiaryDateCell.self, forCellWithReuseIdentifier: DiaryDateCell.reuseIdentifier)
         diaryCollectionView.register(EmotionCell.self, forCellWithReuseIdentifier: EmotionCell.reuseIdentifier)
         diaryCollectionView.register(DiaryContentCell.self, forCellWithReuseIdentifier: DiaryContentCell.reuseIdentifier)
+        diaryCollectionView.register(DiaryPhotoGalleryCell.self, forCellWithReuseIdentifier: DiaryPhotoGalleryCell.reuseIdentifier)
         
         diaryCollectionView.register(DiaryEditorSectionHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: DiaryEditorSectionHeaderView.reuseIdentifier)
         
         diaryCollectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "cell")
         
     }
+    
     
     // MARK: ✅ createLayout
     private func createLayout() -> UICollectionViewCompositionalLayout {
@@ -212,6 +273,8 @@ final class DiaryEditorViewController: UIViewController {
                 return self.createBasicSection(height: 80)
             case .content:
                 return self.createContentSection()
+            case .photogallery:
+                return self.createBasicSection(height: 140)
             default: return self.createBasicSection(height: 52)
             }
         }
@@ -233,6 +296,7 @@ final class DiaryEditorViewController: UIViewController {
         section.boundarySupplementaryItems = [header]
         return section
     }
+    
     
     // MARK: ✅ createContentSection - contentSection
     private func createContentSection() -> NSCollectionLayoutSection {
@@ -339,12 +403,172 @@ extension DiaryEditorViewController {
 }
 
 
-// MARK: ✅ Extension - UIPopoverPresentationControllerDelegate
+// MARK: ✅ Extension - UIPopoverPresentationControllerDelegate -> 커스텀 캘린더 관련 내용
 extension DiaryEditorViewController: UIPopoverPresentationControllerDelegate {
     func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
         return .none
     }
 }
+
+
+// MARK: ✅ Extension - showPhotoSourceActionSheet() -> 사진첩
+extension DiaryEditorViewController {
+    
+    func showPhotoSourceActionSheet(from cell: DiaryPhotoGalleryCell) {
+        
+        self.currentPhotoCell = cell
+        
+        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        
+        // 사진 보관함
+        let galleryAction = UIAlertAction(
+            title: NSLocalizedString("photo.sheet.gallery", comment: ""),
+            style: .default,
+            handler: { _ in
+            cell.onRequestPhotoLibrary?()
+        })
+        alert.addAction(galleryAction)
+        
+        // 사진 찍기
+        let cameraAction = UIAlertAction(
+            title: NSLocalizedString("photo.sheet.camera", comment: ""),
+            style: .default,
+            handler: { _ in
+            cell.onRequestCamera?()
+        })
+        alert.addAction(cameraAction)
+        
+        // 파일 선택
+        let fileAction = UIAlertAction(
+            title: NSLocalizedString("photo.sheet.file", comment: ""),
+            style: .default,
+            handler: { _ in
+            cell.onRequestDocument?()
+        })
+        alert.addAction(fileAction)
+        
+        // 취소
+        alert.addAction(UIAlertAction(
+            title: NSLocalizedString("photo.sheet.cancel", comment: ""),
+            style: .cancel
+        ))
+        
+        present(alert, animated: true)
+        
+    }
+}
+
+
+// MARK: ✅ Extension - UIDocumentPickerDelegate
+extension DiaryEditorViewController: UIDocumentPickerDelegate {
+    
+    func presentDocumentPicker() {
+        
+        // 파일 보관함에서 "이미지"만 보이게 필터링
+        let picker = UIDocumentPickerViewController(
+            forOpeningContentTypes: [UTType.image],
+            asCopy: true
+        )
+        
+        picker.delegate = self
+        picker.allowsMultipleSelection = false
+        present(picker, animated: true)
+    }
+    
+    func documentPicker(_ controller: UIDocumentPickerViewController,
+                        didPickDocumentsAt urls: [URL]) {
+        
+        guard let url = urls.first,
+              let cell = currentPhotoCell else { return }
+        
+        let coordinated = url.startAccessingSecurityScopedResource()
+        
+        defer {
+            if coordinated {
+                url.stopAccessingSecurityScopedResource()
+            }
+        }
+        
+        do {
+            let data = try Data(contentsOf: url)
+            if let image = UIImage(data: data)?.resized() {
+                cell.appendImage(image)
+            }
+        } catch {
+            LogManager.print(.error, "파일 로드 실패 \(error.localizedDescription)")
+        }
+    }
+    
+}
+
+
+// MARK: ✅ Extension - UIImagePickerControllerDelegate,UINavigationControllerDelegate -> 사진 선택
+extension DiaryEditorViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    func openPhotoPicker() {
+        let picker = UIImagePickerController()
+        picker.delegate = self
+        picker.sourceType = .photoLibrary
+        present(picker, animated: true)
+    }
+    
+    func openCamera() {
+        let picker = UIImagePickerController()
+        picker.delegate = self
+        picker.sourceType = .camera
+        present(picker, animated: true)
+    }
+    
+    // 선택 완료
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        
+        if let image = info[.originalImage] as? UIImage,
+           let cell = currentPhotoCell {
+            cell.appendImage(image)
+        }
+
+        picker.dismiss(animated: true)
+    }
+    
+}
+
+
+// MARK: ✅ Extension - showPermissionAlert() -> 안내 메시지
+extension DiaryEditorViewController {
+    
+    func showPermissionAlert(type: MediaPermissionType) {
+        
+        let titleKey = (type == .camera)
+            ? "photo.permission.camera.title"
+            : "photo.permission.album.title"
+        
+        let title = NSLocalizedString(titleKey, comment: "")
+        let message = NSLocalizedString("photo.permission.message", comment: "")
+        
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        
+        let setting = UIAlertAction(
+            title: NSLocalizedString("photo.permission.gotoSetting", comment: ""),
+            style: .default
+        ) { _ in
+            if let url = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(url)
+            }
+        }
+        
+        let confirm = UIAlertAction(
+            title: NSLocalizedString("photo.permission.confirm", comment: ""),
+            style: .cancel
+        )
+        
+        alert.addAction(setting)
+        alert.addAction(confirm)
+        
+        present(alert, animated: true)
+    }
+    
+}
+
 
 
 // MARK: ✅ Extension - DiaryCollectionView 섹션

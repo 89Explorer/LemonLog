@@ -68,3 +68,54 @@ extension Date {
         return formatter.string(from: self)
     }
 }
+
+
+// MARK: ✅ Extension - 해당 뷰를 포함하고 있는 가장 가까운 UIViewController 객체를 차는 유틸
+/*
+ 이 parentViewController 계산 속성은 다음과 같은 상황에서 매우 유용합니다.
+
+  1.뷰 컴포넌트 내부에서 액션 처리:
+ 사용자 정의 UIView 클래스(예: 커스텀 버튼) 내에서 버튼을 탭했을 때,
+ 해당 뷰의 로직이 아닌 뷰 컨트롤러의 로직을 실행해야 할 때
+ 뷰 컨트롤러 인스턴스에 접근하는 가장 깔끔한 방법 중 하나입니다.
+
+  2.화면 전환(Navigation):
+ 뷰 내부에서 모달 뷰를 띄우거나, 다른 화면으로 푸시(Push)할 때,
+ 해당 작업을 수행할 프레젠테이션 컨트롤러 (바로 이 parentViewController)를 찾기 위해 사용됩니다.
+
+  3.코드 분리:
+ UIView는 오직 UI 요소에만 집중하고, 데이터 처리나 화면 관리는
+ UIViewController에게 위임하는 책임 분리 원칙을 지키는 데 도움을 줍니다.
+ */
+extension UIView {
+
+    var parentViewController: UIViewController? {
+        
+        var parentResponse: UIResponder? = self
+        while parentResponse != nil {
+            parentResponse = parentResponse?.next
+            if let vc = parentResponse as? UIViewController {
+                return vc
+            }
+        }
+        return nil
+    }
+    
+}
+
+
+// MARK: ✅ Extension - UIImage 사이즈 조절 
+extension UIImage {
+    func resized(maxWidth: CGFloat = 1200) -> UIImage? {
+        let scale = maxWidth / self.size.width
+        let newSize = CGSize(width: maxWidth,
+                             height: self.size.height * scale)
+        
+        UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
+        self.draw(in: CGRect(origin: .zero, size: newSize))
+        let resizedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return resizedImage
+    }
+}
+
