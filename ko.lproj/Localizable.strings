@@ -77,3 +77,9 @@
 "photo.permission.message"      = "설정 > 개인정보 보호에서 권한을 허용해주세요";
 "photo.permission.gotoSetting"  = "설정 이동";
 "photo.permission.confirm"      = "확인";
+
+
+/* SaveButtonCell - 저장하기 버튼 타이틀 */
+"save_button_title" = "저장하기";
+
+

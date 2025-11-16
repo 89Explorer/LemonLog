@@ -190,10 +190,15 @@ final class DiaryEditorViewController: UIViewController {
                 }
              
                 return cell
+            case .saveButton:
+                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SaveButtonCell.reuseIdentifier, for: indexPath) as? SaveButtonCell else { return UICollectionViewCell() }
                 
-            default:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath)
+                cell.onTapSave = { [weak self] in
+                    self?.diaryEditorVM.saveDiary()
+                }
+                
                 return cell
+                
             }
         })
         
@@ -251,14 +256,14 @@ final class DiaryEditorViewController: UIViewController {
             diaryCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
         
+        // diaryCollectionView 에 셀 등록
         diaryCollectionView.register(DiaryDateCell.self, forCellWithReuseIdentifier: DiaryDateCell.reuseIdentifier)
         diaryCollectionView.register(EmotionCell.self, forCellWithReuseIdentifier: EmotionCell.reuseIdentifier)
         diaryCollectionView.register(DiaryContentCell.self, forCellWithReuseIdentifier: DiaryContentCell.reuseIdentifier)
         diaryCollectionView.register(DiaryPhotoGalleryCell.self, forCellWithReuseIdentifier: DiaryPhotoGalleryCell.reuseIdentifier)
+        diaryCollectionView.register(SaveButtonCell.self, forCellWithReuseIdentifier: SaveButtonCell.reuseIdentifier)
         
         diaryCollectionView.register(DiaryEditorSectionHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: DiaryEditorSectionHeaderView.reuseIdentifier)
-        
-        diaryCollectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "cell")
         
     }
     
@@ -275,6 +280,8 @@ final class DiaryEditorViewController: UIViewController {
                 return self.createContentSection()
             case .photogallery:
                 return self.createBasicSection(height: 140)
+            case .saveButton:
+                return self.createSaveButtonSection(height: 48)
             default: return self.createBasicSection(height: 52)
             }
         }
@@ -322,7 +329,19 @@ final class DiaryEditorViewController: UIViewController {
     }
     
     
-    // MARK: ✅ registerForKeyboardNotifications
+    // MARK: ✅ createSaveButtonSection() - 저장버튼 섹션 레이아웃
+    private func createSaveButtonSection(height: CGFloat, headerSpacing: CGFloat = 20, footerSpacing: CGFloat = 16) -> NSCollectionLayoutSection {
+        
+        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(height))
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        let group = NSCollectionLayoutGroup.vertical(layoutSize: itemSize, subitems: [item])
+        let section = NSCollectionLayoutSection(group: group)
+        section.contentInsets = NSDirectionalEdgeInsets(top: headerSpacing, leading: 16, bottom: footerSpacing, trailing: 16)
+        return section
+    }
+    
+    
+    // MARK: ✅ registerForKeyboardNotifications - 키보드 감지
     private func registerForKeyboardNotifications() {
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
