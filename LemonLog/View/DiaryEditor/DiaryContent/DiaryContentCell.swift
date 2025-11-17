@@ -16,7 +16,11 @@ final class DiaryContentCell: UICollectionViewCell {
     
     
     // MARK: ✅ Closure
-    var onContentChanged: ((String) -> Void)?
+    // 개선 전 데이터 전달용 클로저 (각각의 텍스트뷰에서 얻은 값을 1개의 String 타입으로 합침)
+    //var onContentChanged: ((String) -> Void)?
+    
+    // 개선 후 데이터 전달용 클로저 (각각의 텍스트뷰에서 얻은 값을 구조체 형식으로 전달)
+    var onContentChanged: ((ContentSections) -> Void)?
     var onFocusChanged: ((UIView) -> Void)?    // 상위로 전달
     
     
@@ -95,7 +99,7 @@ final class DiaryContentCell: UICollectionViewCell {
         for section in allSections {
             
             section.textChanged = { [weak self] _ in
-                self?.emitCombinedText()
+                self?.emitContentSections()
             }
             
             section.onFocusChanged = { [weak self] view in
@@ -107,23 +111,66 @@ final class DiaryContentCell: UICollectionViewCell {
     
     
     // MARK: ✅ emitCombinedText - 텍스트 통합
-    private func emitCombinedText() {
-        let combined = """
-        [상황]
-        \(situationSection.text.trimmingCharacters(in: .whitespacesAndNewlines))
+    private func emitContentSections() {
+        let sections = ContentSections(
+            situation: situationSection.text.trimmingCharacters(in: .whitespacesAndNewlines),
+            thought: thoughtSection.text.trimmingCharacters(in: .whitespacesAndNewlines),
+            reeval: reevalSection.text.trimmingCharacters(in: .whitespacesAndNewlines),
+            action: actionSection.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        )
         
-        [생각 / 원인]
-        \(thoughtSection.text.trimmingCharacters(in: .whitespacesAndNewlines))
-        
-        [새로운 시각 / 반박]
-        \(reevalSection.text.trimmingCharacters(in: .whitespacesAndNewlines))
-        
-        [다음 행동]
-        \(actionSection.text.trimmingCharacters(in: .whitespacesAndNewlines))
-        """
-        
-        onContentChanged?(combined)
+        onContentChanged?(sections)
     }
+    
+    
+    // MARK: ✅ showError()
+    func showError(for field: DiaryField, message: String) {
+        
+        switch field {
+            
+        case .situation:
+            situationSection.showError(message: message)
+        case .thought:
+            thoughtSection.showError(message: message)
+        case .reeval:
+            reevalSection.showError(message: message)
+        case .action:
+            actionSection.showError(message: message)
+        default:
+            break
+            
+        }
+        
+    }
+    
+    
+    // MARK: ✅ clearAllErrors()
+    func clearAllErrors() {
+        [situationSection, thoughtSection, reevalSection, actionSection].forEach {
+            $0.clearError()
+        }
+    }
+
+
+    // 개선전 - 각각의 텍스트뷰에서 받은 값을 하나로 통합하는 함수
+//    private func emitCombinedText() {
+//        let combined = """
+//        [상황]
+//        \(situationSection.text.trimmingCharacters(in: .whitespacesAndNewlines))
+//        
+//        [생각 / 원인]
+//        \(thoughtSection.text.trimmingCharacters(in: .whitespacesAndNewlines))
+//        
+//        [새로운 시각 / 반박]
+//        \(reevalSection.text.trimmingCharacters(in: .whitespacesAndNewlines))
+//        
+//        [다음 행동]
+//        \(actionSection.text.trimmingCharacters(in: .whitespacesAndNewlines))
+//        """
+//        
+//        onContentChanged?(combined)
+//    }
+
     
     
     // MARK: ✅ addTapGestureForKeyboardDismiss - 키보드 내리기
@@ -138,4 +185,13 @@ final class DiaryContentCell: UICollectionViewCell {
     @objc private func dismissKeyboard() {
         contentView.endEditing(true)
     }
+}
+
+
+// MARK: ✅ Struct -> 기존 통합하여 보낸 데이터를
+struct ContentSections {
+    let situation: String
+    let thought: String
+    let reeval: String
+    let action: String
 }

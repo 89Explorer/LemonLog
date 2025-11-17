@@ -81,5 +81,14 @@
 
 /* SaveButtonCell - 저장하기 버튼 타이틀 */
 "save_button_title" = "저장하기";
+"update_button_title" = "수정하기";
+
+
+/* DiaryEditorViewwModel - 유효성 검사 안내 멘트 */
+"validation_error_emotion_required" = "오늘 느낀 감정을 선택해 주세요.";
+"validation_error_situation_required" = "상황을 입력해 주세요.";
+"validation_error_thought_required" = "생각 / 원인을 입력해 주세요.";
+"validation_error_reeval_required" = "새로운 시각 / 반박을 입력해 주세요.";
+"validation_error_action_required" = "다음 행동을 입력해 주세요.";
 
 

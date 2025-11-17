@@ -23,9 +23,28 @@ final class DiaryEditorViewController: UIViewController {
     
     private var currentPhotoCell: DiaryPhotoGalleryCell?
     
+    // DiaryContentCell 클래스에서 사용할 목적 - 값이 변경될 때 저장 목적
+    private var currentContentSections = ContentSections(
+        situation: "",
+        thought: "",
+        reeval: "",
+        action: ""
+    )
+    
     
     // MARK: ✅ UI
     private var diaryCollectionView: UICollectionView!
+    
+    
+    // MARK: ✅ Init
+    init(mode: DiaryMode) {
+        self.diaryEditorVM = DiaryEditorViewModel(mode: mode)
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     
     // MARK: ✅ Life Cycle
@@ -38,20 +57,21 @@ final class DiaryEditorViewController: UIViewController {
         applySnapshot()
         registerForKeyboardNotifications()
 
-        //
         diaryCollectionView.alwaysBounceVertical = true
-
+        
+        bindViewModel()
     }
     
     
-    // MARK: ✅ Init
-    init(mode: DiaryMode) {
-        self.diaryEditorVM = DiaryEditorViewModel(mode: mode)
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    // MARK: ✅ Binding
+    private func bindViewModel() {
+        diaryEditorVM.$validationResult
+            .receive(on: RunLoop.main)
+            .sink { [weak self] result in
+                guard let self, let result else { return }
+                self.applyValidationErrors(result.errors)
+            }
+            .store(in: &cancellables)
     }
     
     
@@ -61,7 +81,7 @@ final class DiaryEditorViewController: UIViewController {
          
             switch itemIdentifier.section {
                 
-                // 날짜 선택하는 섹션
+            // -------------------------------------- 날짜 섹션
             case .date:
                 
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DiaryDateCell.reuseIdentifier, for: indexPath) as? DiaryDateCell else { return UICollectionViewCell() }
@@ -94,6 +114,7 @@ final class DiaryEditorViewController: UIViewController {
                 }
                 return cell
                 
+            // -------------------------------------- 감정 섹션
             case .emotion:
                 
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: EmotionCell.reuseIdentifier, for: indexPath) as? EmotionCell else { return UICollectionViewCell() }
@@ -110,12 +131,15 @@ final class DiaryEditorViewController: UIViewController {
                         guard let self = self else { return }
                         self.diaryEditorVM.diary.emotion = emotion.rawValue
                         cell.configure(with: emotion)
+                        
+                        //cell.clearError()  // 유효성 검사 실패시 나오는 문구를 감정을 선택하면 숨김
                     }
                     
                     self.present(emotionVC, animated: true)
                 }
                 return cell
                 
+            // ------------------------------ 내용 섹션
             case .content:
                 
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DiaryContentCell.reuseIdentifier, for: indexPath) as? DiaryContentCell else {
@@ -128,13 +152,14 @@ final class DiaryEditorViewController: UIViewController {
                     self.activeTextViewFrame = view.convert(view.bounds, to: self.diaryCollectionView)
                 }
                 
-                cell.onContentChanged = { [weak self] content in
+                cell.onContentChanged = { [weak self] sections in
                     guard let self else { return }
-                    self.diaryEditorVM.diary.content = content
+                    self.currentContentSections = sections
                 }
                 
                 return cell
                 
+            // -------------------------------- 사진 섹션
             case .photogallery:
                 
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DiaryPhotoGalleryCell.reuseIdentifier, for: indexPath) as? DiaryPhotoGalleryCell else {
@@ -190,11 +215,23 @@ final class DiaryEditorViewController: UIViewController {
                 }
              
                 return cell
+             
+            // ------------------------------- 저장 버튼
             case .saveButton:
+                
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SaveButtonCell.reuseIdentifier, for: indexPath) as? SaveButtonCell else { return UICollectionViewCell() }
                 
                 cell.onTapSave = { [weak self] in
-                    self?.diaryEditorVM.saveDiary()
+                    guard let self else { return }
+                    
+                    let diaryContent = self.currentContentSections
+                    
+                    self.diaryEditorVM.attemptSaveDiary(
+                        situation: diaryContent.situation,
+                        thought: diaryContent.thought,
+                        reeval: diaryContent.reeval,
+                        action: diaryContent.action
+                    )
                 }
                 
                 return cell
@@ -220,6 +257,7 @@ final class DiaryEditorViewController: UIViewController {
             return nil
         }
     }
+    
     
     // MARK: ✅ Snapshot Setup
     private func applySnapshot() {
@@ -275,7 +313,7 @@ final class DiaryEditorViewController: UIViewController {
             
             switch sectionType {
             case .emotion:
-                return self.createBasicSection(height: 80)
+                return self.createBasicSection(height: 100)
             case .content:
                 return self.createContentSection()
             case .photogallery:
@@ -584,6 +622,107 @@ extension DiaryEditorViewController {
         alert.addAction(confirm)
         
         present(alert, animated: true)
+    }
+    
+}
+
+
+// MARK: ✅ Extension - 유효성 검사 목적
+extension DiaryEditorViewController {
+    
+    // Validation UI 적용
+    private func applyValidationErrors(_ errors: [DiaryValidationError]) {
+        
+            
+        guard !errors.isEmpty else {
+            //clearAllValidationUI()
+            return
+        }
+        
+        for error in errors {
+            switch error.field {
+                
+            case .emotion:
+                showEmotionError(message: error.message)
+                
+            case .situation, .thought, .reeval, .action:
+                showContentError(field: error.field, message: error.message)
+                
+            }
+        }
+        
+        // 첫 오류 위치로 스크롤
+        if let first = errors.first {
+            scrollToField(first.field)
+        }
+    }
+    
+    // Validation UI 제거
+    private func clearAllValidationUI() {
+        
+        // Emotion Cell
+        if let cell = diaryCollectionView.cellForItem(
+            at: IndexPath(item: 0, section: DiaryEditorSection.emotion.rawValue)
+        ) as? EmotionCell {
+            cell.clearError()
+        }
+        
+        // Content Cell
+        if let cell = diaryCollectionView.cellForItem(
+            at: IndexPath(item: 0, section: DiaryEditorSection.content.rawValue)
+        ) as? DiaryContentCell {
+            cell.clearAllErrors()
+        }
+    }
+    
+    // show Error - Emotion 셀
+//    private func showEmotionError(message: String) {
+//        reloadEmotionSection()
+//
+//        DispatchQueue.main.async {
+//            let idx = IndexPath(item: 0, section: DiaryEditorSection.emotion.rawValue)
+//            if let cell = self.diaryCollectionView.cellForItem(at: idx) as? EmotionCell {
+//                cell.showError(message: message)
+//            }
+//        }
+//    }
+    
+//    private func reloadEmotionSection() {
+//        var snapshot = dataSource.snapshot()
+//        let items = snapshot.itemIdentifiers(inSection: .emotion)
+//        snapshot.reloadItems(items)
+//        dataSource.apply(snapshot, animatingDifferences: false)
+//    }
+
+    // show Error - Emotion 셀
+    private func showEmotionError(message: String) {
+        let indexPath = IndexPath(item: 0, section: DiaryEditorSection.emotion.rawValue)
+        guard let cell = diaryCollectionView.cellForItem(at: indexPath) as? EmotionCell else { return }
+        cell.showError(message: message)
+    }
+    
+    // show Error - Content 셀
+    private func showContentError(field: DiaryField, message: String) {
+        let indexPath = IndexPath(item: 0, section: DiaryEditorSection.content.rawValue)
+        guard let cell = diaryCollectionView.cellForItem(at: indexPath) as? DiaryContentCell else { return }
+        cell.showError(for: field, message: message)
+    }
+    
+    // 에러가 발생한 곳으로 스클
+    private func scrollToField(_ field: DiaryField) {
+        switch field {
+            
+        case .emotion:
+            scrollTo(section: .emotion)
+            
+        case .situation, .thought, .reeval, .action:
+            scrollTo(section: .content)
+        }
+    }
+        
+    private func scrollTo(section: DiaryEditorSection) {
+        let indexPath = IndexPath(item: 0, section: section.rawValue)
+        diaryCollectionView.scrollToItem(at: indexPath, at: .top, animated: true)
     }
     
 }

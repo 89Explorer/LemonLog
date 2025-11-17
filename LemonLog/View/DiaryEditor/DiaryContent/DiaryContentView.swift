@@ -33,6 +33,7 @@ final class DiaryContentView: UIView {
     private let placeholderLabel1: UILabel = UILabel()
     private let placeholderLabel2: UILabel = UILabel()
     private let counterLabel: UILabel = UILabel()
+    private let errorLabel: UILabel = UILabel()
     
     // Accessory - 키보드 내리기
     private lazy var accessory: DiaryAccessoryView = {
@@ -108,7 +109,12 @@ final class DiaryContentView: UIView {
         counterLabel.font = .systemFont(ofSize: 12)
         counterLabel.textColor = .systemGray
         
-        [titleLabel, guideLabel, textView, placeholderLabel1, placeholderLabel2, counterLabel].forEach {
+        // Error -----------------------------------------
+        errorLabel.textColor = .systemRed
+        errorLabel.font = .systemFont(ofSize: 12, weight: .semibold)
+        errorLabel.isHidden = true
+        
+        [titleLabel, guideLabel, textView, placeholderLabel1, placeholderLabel2, counterLabel, errorLabel].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             addSubview($0)
         }
@@ -144,9 +150,29 @@ final class DiaryContentView: UIView {
             // Counter Label
             counterLabel.topAnchor.constraint(equalTo: textView.bottomAnchor, constant: 4),
             counterLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            counterLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
+            counterLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
+            
+            // Error Label
+            errorLabel.topAnchor.constraint(equalTo: textView.bottomAnchor, constant: 4),
+            errorLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            errorLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20)
             
         ])
+    }
+    
+    
+    // MARK: ✅ showError()
+    func showError(message: String) {
+        errorLabel.text = message
+        errorLabel.isHidden = false
+        textView.layer.borderColor = UIColor.systemRed.cgColor
+    }
+    
+    
+    // MARK: ✅ clearError()
+    func clearError() {
+        errorLabel.isHidden = true
+        textView.layer.borderColor = UIColor.systemGray5.cgColor
     }
 
 }
@@ -164,6 +190,9 @@ extension DiaryContentView: UITextViewDelegate {
         limitCharacters(textView)
         updatePlaceholder()
         updateCounter()
+        
+        clearError()
+        
         textChanged?(textView.text)
     }
     
