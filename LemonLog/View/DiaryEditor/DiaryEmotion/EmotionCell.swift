@@ -121,6 +121,11 @@ final class EmotionCell: UICollectionViewCell {
         
     }
     
+    // 자동 호출용 메서드 - DiaryEditorVieController가 열리면, 감정을 선택할 수 있도록 호출되는 함수 
+    func triggerOpenEmotionPicker() {
+        onAddButtonTapped?()
+    }
+    
 
     // MARK: ✅ Action Method
     // UIKit에서는 Cell이 직접 present 하는 것은 피해야함

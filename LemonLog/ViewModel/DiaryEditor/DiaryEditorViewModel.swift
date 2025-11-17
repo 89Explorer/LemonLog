@@ -19,7 +19,7 @@ final class DiaryEditorViewModel: ObservableObject {
     
     
     // MARK: ✅ State
-    private let mode: DiaryMode
+    let mode: DiaryMode
     
     
     // MARK: ✅ Published Properties (UI에 바인딩)
@@ -28,6 +28,8 @@ final class DiaryEditorViewModel: ObservableObject {
     @Published var saveButtonTitle: String = ""
     
     @Published var validationResult: DiaryValidationResult? = nil    // 유효성 검사 결과를 VC로 전달
+    
+    @Published var saveCompleted: Bool = false    // 유효성 검사 통과 유무 확인
     
     
     // MARK: ✅ Init
@@ -97,6 +99,7 @@ extension DiaryEditorViewModel {
         }
         
         saveDiary()
+        saveCompleted = true 
 
     }
     

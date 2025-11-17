@@ -62,14 +62,55 @@ final class DiaryEditorViewController: UIViewController {
         bindViewModel()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        openEmotionSelectorIfNeeded()
+    }
+    
+    
+    // MARK: ✅ openEmotionSelectorIfNeeded -> 창이 열리면 바로 감정을 선택할 수 있도록 해주는 함수
+    private func openEmotionSelectorIfNeeded() {
+        
+        // edit 모드라면 자동 오픈
+        if case .edit = diaryEditorVM.mode {
+            return
+        }
+        
+        // 이미 감정을 선택했다면 자동으로 열리지 않게
+        if !diaryEditorVM.diary.emotion.isEmpty { return }
+
+        let indexPath = IndexPath(item: 0, section: DiaryEditorSection.emotion.rawValue)
+        
+        guard let cell = diaryCollectionView.cellForItem(at: indexPath) as? EmotionCell else {
+            // 셀이 아직 로딩되지 않았으면 약간 기다렸다가 실행
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                self.openEmotionSelectorIfNeeded()
+            }
+            return
+        }
+        
+        cell.triggerOpenEmotionPicker()
+    }
+
     
     // MARK: ✅ Binding
     private func bindViewModel() {
+        
+        // 유효성 검사 구독
         diaryEditorVM.$validationResult
             .receive(on: RunLoop.main)
             .sink { [weak self] result in
                 guard let self, let result else { return }
                 self.applyValidationErrors(result.errors)
+            }
+            .store(in: &cancellables)
+        
+        // 유효성 검사 결과 구독 -> 참일 경우 창 닫힘 
+        diaryEditorVM.$saveCompleted
+            .receive(on: RunLoop.main)
+            .sink { [weak self] completed in
+                guard let self, completed else { return }
+                self.navigationController?.dismiss(animated: true)
             }
             .store(in: &cancellables)
     }
