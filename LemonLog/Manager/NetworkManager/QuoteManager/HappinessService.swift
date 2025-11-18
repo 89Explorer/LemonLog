@@ -23,36 +23,35 @@ final class HappinessService: HappinessServiceProviding {
     func fetchRandomQuote() -> AnyPublisher<HappinessQuote, Error> {
         
         // 🔹 1. URL 생성
-        guard let url = URL(string: "https://api.sobabear.com/happiness/random-quote") else {
+        guard let url = URL(string: "https://korean-advice-open-api.vercel.app/api/advice") else {
             LogManager.print(.error, "잘못된 URL")
             return Fail(error: URLError(.badURL)).eraseToAnyPublisher()
         }
         
         LogManager.print(.info, "요청 시작: \(url.absoluteString)")
         
-        // 🔹 2. 네트워크 요청 (URLSession)
+        
         return URLSession.shared.dataTaskPublisher(for: url)
-            // 🔹 3. 응답 처리 (상태 코드 확인)
+        // 🔹 2. HTTP 상태 코드 검증 + 로그
             .tryMap { output -> Data in
                 if let httpResponse = output.response as? HTTPURLResponse {
                     LogManager.print(.info, "상태 코드: \(httpResponse.statusCode)")
+                    
+                    guard (200..<300).contains(httpResponse.statusCode) else {
+                        throw URLError(.badServerResponse)
+                    }
                 }
                 return output.data
             }
-            // 🔹 4. JSON 디코딩
-            .decode(type: HappinessResponse.self, decoder: JSONDecoder())
-            // 🔹 5. 상태 코드 검증 + 데이터 추출
-            .tryMap { response in
-                guard response.statusCode == 200 else {
-                    throw URLError(.badServerResponse)
-                }
-                LogManager.print(.success, "명언 데이터 수신 성공: \(response.data.author)")
-                return response.data
-            }
-            // 🔹 6. 메인 스레드에서 수신
+        // 🔹 3. 바로 HappinessQuote로 디코딩
+            .decode(type: HappinessQuote.self, decoder: JSONDecoder())
+        // 🔹 4. 메인 스레드에서 수신
             .receive(on: DispatchQueue.main)
-            // 🔹 7. 이벤트 로그 처리
+        // 🔹 5. 이벤트 로그 처리
             .handleEvents(
+                receiveOutput: { quote in
+                    LogManager.print(.success, "명언 데이터 수신 성공: \(quote.author)")
+                },
                 receiveCompletion: { completion in
                     switch completion {
                     case .failure(let error):
@@ -60,10 +59,9 @@ final class HappinessService: HappinessServiceProviding {
                     case .finished:
                         LogManager.print(.success, "API 호출 완료")
                     }
-                    
                 }
             )
-            // 🔹 8. Publisher 타입 통합
+        // 🔹 6. Publisher 타입 통합
             .eraseToAnyPublisher()
     }
     

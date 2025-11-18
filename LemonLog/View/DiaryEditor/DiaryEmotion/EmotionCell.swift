@@ -100,8 +100,10 @@ final class EmotionCell: UICollectionViewCell {
     
     // MARK: ✅ showError
     func showError(message: String) {
+        
         errorLabel.text = message
         errorLabel.isHidden = false
+        
     }
     
     

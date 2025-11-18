@@ -14,12 +14,13 @@ final class HomeViewController: UIViewController {
     
     
     // MARK: ✅ ViewModel
-#if DEBUG
-    private var homeVM = HomeViewModel.mock()
-#else
-    private var homeVM = HomeViewModel()
-#endif
+//#if DEBUG
+//    private var homeVM = HomeViewModel.mock()
+//#else
+//    private var homeVM = HomeViewModel()
+//#endif
 
+    private var homeVM = HomeViewModel()
     
     // MARK: ✅ DiffableDataSource
     private var dataSource: UICollectionViewDiffableDataSource<HomeSection, HomeItem>!
@@ -60,6 +61,10 @@ final class HomeViewController: UIViewController {
                 guard case .quote(let quoteData) = itemIdentifier,
                       let cell = collectionView.dequeueReusableCell(withReuseIdentifier: QuoteCell.reuseIdentifier, for: indexPath) as? QuoteCell else { return UICollectionViewCell() }
                 cell.configure(with: quoteData)
+                
+                cell.onTapRefresh = { [weak self] in
+                    self?.homeVM.reloadQuote()
+                }
                 return cell
     
             case .emotionSummary:
@@ -237,12 +242,12 @@ final class HomeViewController: UIViewController {
         // 아이템 정의 
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .fractionalHeight(1.0))
+            heightDimension: .estimated(140))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(140))
+            heightDimension: .estimated(140))
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)

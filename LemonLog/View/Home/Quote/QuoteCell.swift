@@ -16,10 +16,15 @@ class QuoteCell: UICollectionViewCell {
     static let reuseIdentifier: String = "QuoteCell"
     
     
+    // MARK: ✅ Closure
+    var onTapRefresh: (() -> Void)?
+    
+    
     // MARK: ✅ UI
     private let quoteLabel: UILabel = UILabel()
     private let authorLabel: UILabel = UILabel()
     private let iconView: UIImageView = UIImageView(image: UIImage(systemName: "leaf.fill"))
+    private let refreshButton: UIButton = UIButton(type: .system)
     private let refreshIconView: UIImageView = UIImageView(image: UIImage(systemName: "arrow.clockwise.circle"))
     
     
@@ -68,25 +73,31 @@ class QuoteCell: UICollectionViewCell {
         stackView.setCustomSpacing(4, after: quoteLabel)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         
-        refreshIconView.tintColor = .secondaryLabel
-        refreshIconView.translatesAutoresizingMaskIntoConstraints = false
+        let config = UIImage.SymbolConfiguration(pointSize: 16)
+        let refreshImage = UIImage(systemName: "arrow.clockwise.circle", withConfiguration: config)
+        refreshButton.setImage(refreshImage, for: .normal)
+        refreshButton.tintColor = .systemGray
+        refreshButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        refreshButton.addTarget(self, action: #selector(tappedRefresh), for: .touchUpInside)
         
         contentView.addSubview(stackView)
-        contentView.addSubview(refreshIconView)
+        contentView.addSubview(refreshButton)
         
         NSLayoutConstraint.activate([
             
-            stackView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            stackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
             stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
             
             iconView.heightAnchor.constraint(equalToConstant: 20),
             iconView.widthAnchor.constraint(equalToConstant: 20),
             
-            refreshIconView.topAnchor.constraint(equalTo: authorLabel.topAnchor),
-            refreshIconView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            refreshIconView.widthAnchor.constraint(equalToConstant: 20),
-            refreshIconView.heightAnchor.constraint(equalToConstant: 20)
+            refreshButton.topAnchor.constraint(equalTo: authorLabel.topAnchor),
+            refreshButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            refreshButton.widthAnchor.constraint(equalToConstant: 20),
+            refreshButton.heightAnchor.constraint(equalToConstant: 20)
         ])
         
     }
@@ -99,6 +110,12 @@ class QuoteCell: UICollectionViewCell {
         
         quoteLabel.text = "“\(quote)”"
         authorLabel.text = "- \(author) -"
+    }
+    
+    
+    // MARK: ✅ Action Method
+    @objc private func tappedRefresh() {
+        onTapRefresh?()
     }
     
 }

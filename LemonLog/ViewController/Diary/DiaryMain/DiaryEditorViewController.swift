@@ -105,7 +105,7 @@ final class DiaryEditorViewController: UIViewController {
             }
             .store(in: &cancellables)
         
-        // 유효성 검사 결과 구독 -> 참일 경우 창 닫힘 
+        // 유효성 검사 결과 구독 -> 참일 경우 창 닫힘
         diaryEditorVM.$saveCompleted
             .receive(on: RunLoop.main)
             .sink { [weak self] completed in

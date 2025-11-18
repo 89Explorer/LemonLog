@@ -16,6 +16,7 @@ final class HomeViewModel: ObservableObject {
     
     // MARK: ✅ Dependencies
     private let happinessViewModel = HappinessViewModel()
+    
     private let store: DiaryProviding
     private var cancellables = Set<AnyCancellable>()
     
@@ -33,13 +34,13 @@ final class HomeViewModel: ObservableObject {
         
         // Swift 6 - safe 초기화
         self.store = store ?? DiaryStore.shared
-        //observeStore()   // 목업 데이터를 위해 잠시 멈춤
+        observeStore()   // 목업 데이터를 위해 잠시 멈춤
         bindHappinessQuote()
         Task {
-            //await loadDiaryImages()    // 목업 데이터를 위해 잠시 멈춤
-            //loadWeeklySummary()
+            await loadDiaryImages()    // 목업 데이터를 위해 잠시 멈춤
+            loadWeeklySummary()
         }
-        //happinessViewModel.loadQuote()   // 홈 진입시 명언을 바로 호출. // 목업 데이터를 위해 잠시 멈춤
+        happinessViewModel.loadQuote()   // 홈 진입시 명언을 바로 호출. // 목업 데이터를 위해 잠시 멈춤
     }
     
     
@@ -88,6 +89,7 @@ final class HomeViewModel: ObservableObject {
             }
             .store(in: &cancellables)
     }
+
 }
 
 
@@ -196,6 +198,15 @@ extension HomeViewModel {
 }
 
 
+// MARK: ✅ Extension -> 명언 다시 불러오기 메서드
+extension HomeViewModel {
+    func reloadQuote() {
+        happinessViewModel.loadQuote()
+    }
+}
+
+
+/*
 // MARK: ✅ Extension - Mock Preview용 ViewModel
 extension HomeViewModel {
     
@@ -296,3 +307,4 @@ final class MockDiaryStore: DiaryProviding {
         mockImages
     }
 }
+ */
