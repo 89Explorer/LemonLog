@@ -119,3 +119,45 @@ extension UIImage {
     }
 }
 
+
+// MARK: ✅ Extension -> UIViewController
+extension UIViewController {
+
+    // dim view tag
+    private var dimViewTag: Int { 987654 }
+
+    
+    func showDim(animated: Bool = true, alpha: CGFloat = 0.35) {
+        // 이미 존재하면 재생성 X
+        if let _ = view.viewWithTag(dimViewTag) { return }
+
+        let dim = UIView(frame: view.bounds)
+        dim.backgroundColor = UIColor.black.withAlphaComponent(alpha)
+        dim.alpha = 0
+        dim.tag = dimViewTag
+        view.addSubview(dim)
+
+        if animated {
+            UIView.animate(withDuration: 0.25) {
+                dim.alpha = 1
+            }
+        } else {
+            dim.alpha = 1
+        }
+    }
+
+    
+    func hideDim(animated: Bool = true) {
+        guard let dim = view.viewWithTag(dimViewTag) else { return }
+
+        if animated {
+            UIView.animate(withDuration: 0.25, animations: {
+                dim.alpha = 0
+            }) { _ in
+                dim.removeFromSuperview()
+            }
+        } else {
+            dim.removeFromSuperview()
+        }
+    }
+}

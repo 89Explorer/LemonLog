@@ -126,7 +126,7 @@ final class CustomCalendarViewController: UIViewController {
         }
 
         NSLayoutConstraint.activate([
-            header.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            header.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
             header.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 
             weekView.topAnchor.constraint(equalTo: header.bottomAnchor, constant: 12),

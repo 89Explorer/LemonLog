@@ -131,10 +131,12 @@ final class DiaryEditorViewController: UIViewController {
                 cell.onTapDate = { [weak self] in
                     guard let self else { return }
                     
+                    self.showDim()
                     let calendarVC =  CustomCalendarViewController (initializedDate: diaryEditorVM.diary.createdAt){ selectedDate in
-                        print("선택된 날짜:", selectedDate.localizedString(dateStyle: .long))
+                        //print("선택된 날짜:", selectedDate.localizedString(dateStyle: .long))
                         cell.configure(date: selectedDate)
                         self.diaryEditorVM.diary.createdAt = selectedDate
+                        self.hideDim()
                         
                     }
                     calendarVC.modalPresentationStyle = .popover
