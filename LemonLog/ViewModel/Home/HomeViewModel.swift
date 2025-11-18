@@ -107,7 +107,7 @@ extension HomeViewModel {
         
         // 한국 기준: 주 시작을 월요일로 설정
         var calendarKR = calendar
-        calendarKR.firstWeekday = 2
+        calendarKR.firstWeekday = 1
         
         // 주간 범위 계산
         guard let weekInterval = calendarKR.dateInterval(of: .weekOfYear, for: date) else { return "" }

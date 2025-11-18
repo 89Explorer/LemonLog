@@ -119,6 +119,12 @@ final class HomeViewController: UIViewController {
                         return nil
                     }
                     header.configure(with: section.title, subtitle: section.subtitle)
+                    
+                    // 섹션별 탭 액션 연결
+                    header.onTappedMove = { [weak self] in
+                        self?.didTapHeader(section: section)
+                        print("section: \(section.title)")
+                    }
                     return header
                 }
                 
@@ -170,6 +176,7 @@ final class HomeViewController: UIViewController {
         .store(in: &cancellables)
     }
 
+    // 기존에는 각각의 섹션별로 applySnapshot()을 호출했기 때문에 동작이 매끄럽지 않았음
 //    private func bindViewModel() {
 //        homeVM.$quote
 //            .sink { [weak self] _ in self?.applySnapshot() }
@@ -283,18 +290,18 @@ final class HomeViewController: UIViewController {
         section.contentInsets = NSDirectionalEdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
         
         // 섹션 헤더 추가
-        let headerSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(48)
-        )
-        
-        let header = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: headerSize,
-            elementKind: UICollectionView.elementKindSectionHeader,
-            alignment: .top
-        )
-        
-        section.boundarySupplementaryItems = [header]
+//        let headerSize = NSCollectionLayoutSize(
+//            widthDimension: .fractionalWidth(1.0),
+//            heightDimension: .estimated(48)
+//        )
+//        
+//        let header = NSCollectionLayoutBoundarySupplementaryItem(
+//            layoutSize: headerSize,
+//            elementKind: UICollectionView.elementKindSectionHeader,
+//            alignment: .top
+//        )
+//        
+//        section.boundarySupplementaryItems = [header]
         
         return section
     }
@@ -422,6 +429,25 @@ final class HomeViewController: UIViewController {
     }
 
 }
+
+
+// MARK: ✅ Extension -> 섹션헤더뷰를 누르면 동작하는 함수
+extension HomeViewController {
+    
+    private func didTapHeader(section: HomeSection) {
+        switch section {
+        case .quote:
+            print(section.subtitle)
+        case .emotionSummary:
+            print(section.subtitle)
+        case .recentEntries:
+            print(section.subtitle)
+        case .photoGallery:
+            print(section.subtitle)
+        }
+    }
+}
+
 
 
 // MARK: ✅ Extension - HomeSection + HomeItem (UI 섹션 정의)

@@ -428,7 +428,7 @@ extension DiaryCoreDataManager {
 // MARK: - extension (주간 감정 요약에 쓰일 Weekday)
 extension DiaryCoreDataManager {
     enum Weekday: String, CaseIterable {
-        case mon, tue, wed, thu, fri, sat, sun
+        case sun, mon, tue, wed, thu, fri, sat
     }
 }
 

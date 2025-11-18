@@ -52,15 +52,15 @@ class QuoteCell: UICollectionViewCell {
         iconView.tintColor = .systemGreen
         iconView.translatesAutoresizingMaskIntoConstraints = false
         
-        quoteLabel.font = .systemFont(ofSize: 16, weight: .black)
+        quoteLabel.font = .systemFont(ofSize: 16, weight: .bold)
         quoteLabel.textColor = .label
         quoteLabel.textAlignment = .left
         quoteLabel.numberOfLines = 0
         quoteLabel.lineBreakMode = .byWordWrapping
         quoteLabel.translatesAutoresizingMaskIntoConstraints = false
         
-        authorLabel.font = .systemFont(ofSize: 16, weight: .black)
-        authorLabel.textColor = .label
+        authorLabel.font = .systemFont(ofSize: 12, weight: .black)
+        authorLabel.textColor = .secondaryLabel
         authorLabel.textAlignment = .center
         authorLabel.numberOfLines = 1
         authorLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -70,7 +70,7 @@ class QuoteCell: UICollectionViewCell {
         stackView.alignment = .center
         stackView.spacing = 12
         
-        stackView.setCustomSpacing(4, after: quoteLabel)
+        stackView.setCustomSpacing(8, after: quoteLabel)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         
         let config = UIImage.SymbolConfiguration(pointSize: 16)
@@ -86,10 +86,10 @@ class QuoteCell: UICollectionViewCell {
         
         NSLayoutConstraint.activate([
             
-            stackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
+            stackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
             stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
+            stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
             
             iconView.heightAnchor.constraint(equalToConstant: 20),
             iconView.widthAnchor.constraint(equalToConstant: 20),

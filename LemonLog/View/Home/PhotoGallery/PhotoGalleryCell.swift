@@ -43,8 +43,8 @@ class PhotoGalleryCell: UICollectionViewCell {
         contentView.layer.shadowRadius = 8
         contentView.layer.shadowOffset = CGSize(width: 0, height: 4)
         
-        photoImageView.contentMode = .scaleAspectFit
-        photoImageView.layer.cornerRadius = 4
+        photoImageView.contentMode = .scaleAspectFill
+        photoImageView.layer.cornerRadius = 4 
         photoImageView.clipsToBounds = true
         photoImageView.translatesAutoresizingMaskIntoConstraints = false
         

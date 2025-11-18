@@ -93,7 +93,7 @@ class WeeklySummaryCell: UICollectionViewCell {
         }
         
         NSLayoutConstraint.activate([
-            weekLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
+            weekLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
             weekLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             weekLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             
@@ -104,7 +104,7 @@ class WeeklySummaryCell: UICollectionViewCell {
             
             topEmotionStackView.topAnchor.constraint(equalTo: emotionCollectionView.bottomAnchor, constant: 16),
             topEmotionStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            topEmotionStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8)
+            topEmotionStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12)
         ])
     }
     
