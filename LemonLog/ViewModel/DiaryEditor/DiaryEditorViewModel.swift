@@ -31,6 +31,13 @@ final class DiaryEditorViewModel: ObservableObject {
     
     @Published var saveCompleted: Bool = false    // 유효성 검사 통과 유무 확인
     
+    @Published var contentSections = ContentSections(
+        situation: "",
+        thought: "",
+        reeval: "",
+        action: ""
+    )
+    
     
     // MARK: ✅ Init
     init(mode: DiaryMode, store: DiaryProviding? = nil) {
@@ -52,6 +59,19 @@ final class DiaryEditorViewModel: ObservableObject {
             diary = existing
             saveButtonTitle = NSLocalizedString("update_button_title", comment: "")
             navigationTitle = NSLocalizedString("diary_editor_title_edit", comment: "Navigation title for editing an existing diary entry")
+            
+            if let data = existing.content.data(using: .utf8),
+               let decoded = try? JSONDecoder().decode(ContentSections.self, from: data) {
+                contentSections = decoded
+            } else {
+                // 예전 버전 호환 (혹은 JSON이 아니면 그냥 내용 전체 넣기)
+                contentSections = ContentSections(
+                    situation: existing.content,
+                    thought: "",
+                    reeval: "",
+                    action: ""
+                )
+            }
         }
     }
 }
@@ -96,6 +116,19 @@ extension DiaryEditorViewModel {
         guard result.isValid else {
             validationResult = result
             return
+        }
+        
+        // JSON으로 content 직렬화
+        let content = ContentSections(
+            situation: situation,
+            thought: thought,
+            reeval: reeval,
+            action: action
+        )
+        
+        if let jsonData = try? JSONEncoder().encode(content),
+           let jsonString = String(data: jsonData, encoding: .utf8) {
+            diary.content = jsonString
         }
         
         saveDiary()
@@ -222,3 +255,10 @@ struct DiaryValidationResult {
 }
 
 
+// MARK: ✅ Struct -> 기존 통합하여 보낸 데이터를
+struct ContentSections: Codable {
+    let situation: String
+    let thought: String
+    let reeval: String
+    let action: String
+}

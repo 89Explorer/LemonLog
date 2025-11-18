@@ -68,8 +68,15 @@ class EmotionDayCell: UICollectionViewCell {
     
     
     // MARK: ✅ Configure Data
-    func configure(dayText: String, emotion: EmotionCategory) {
+    func configure(dayText: String, emotion: EmotionCategory?) {
         dayLabel.text = dayText
-        emotionView.image = emotion.emotionImage
+        
+        if let emotion {
+            emotionView.image = emotion.emotionImage
+            emotionView.alpha = 1.0
+        } else {
+            emotionView.image = nil
+            emotionView.alpha = 0.15
+        }
     }
 }

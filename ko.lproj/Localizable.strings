@@ -19,6 +19,8 @@
 "home_section_photo_gallery_title" = "최근의 장면들";
 "home_section_photo_gallery_subtitle" = "사진 속 하루, 그때의 감정";
 
+/* WeeklySummaryCell - topEmotionLabel*/
+"weeklySummaryCell_topEmotionLabel" = "이번 주에 많이 느낀 감정: ";
 
 /* DiaryEditor - DiaryEditorSection */
 "diary_editor_section_date_title" = "날짜";

@@ -14,13 +14,8 @@ final class HomeViewController: UIViewController {
     
     
     // MARK: ✅ ViewModel
-//#if DEBUG
-//    private var homeVM = HomeViewModel.mock()
-//#else
-//    private var homeVM = HomeViewModel()
-//#endif
-
-    private var homeVM = HomeViewModel()
+    private var homeVM: HomeViewModel
+    
     
     // MARK: ✅ DiffableDataSource
     private var dataSource: UICollectionViewDiffableDataSource<HomeSection, HomeItem>!
@@ -35,6 +30,17 @@ final class HomeViewController: UIViewController {
     private var floatingButton: UIButton!
     
     
+    // MARK: ✅ Init
+    init(viewModel: HomeViewModel) {
+        self.homeVM = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    
     // MARK: ✅ Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,7 +49,7 @@ final class HomeViewController: UIViewController {
         configureButtonAction()
         configureDataSource()
         bindViewModel()
-        applySnapshot()
+        //applySnapshot()
     }
     
     
@@ -70,13 +76,18 @@ final class HomeViewController: UIViewController {
             case .emotionSummary:
                 guard case .emotionSummary(let emotionSummary) = itemIdentifier,
                       let cell = collectionView.dequeueReusableCell(withReuseIdentifier: WeeklySummaryCell.reuseIdentifier, for: indexPath) as? WeeklySummaryCell else { return UICollectionViewCell() }
-                cell.configure(weekText: emotionSummary.weekDescription, emotions: emotionSummary.mostFrequentByWeekday, top3: emotionSummary.top3Emotion)
+                cell.configure(
+                    weekText: emotionSummary.weekDescription,
+                    emotions: emotionSummary.mostFrequentByWeekday,
+                    top3: emotionSummary.top3Emotion
+                )
                 return cell
                 
             case .recentEntries:
                 guard case .diary(let recentDiary) = itemIdentifier,
                       let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DiarySummaryCell.reuseIdentifier, for: indexPath) as? DiarySummaryCell else { return UICollectionViewCell() }
-                cell.configure(with: recentDiary)
+                let summary = self.homeVM.summaryText(from: recentDiary)
+                cell.configure(with: recentDiary, summary: summary)
                 return cell
                 
             case .photoGallery:
@@ -146,23 +157,41 @@ final class HomeViewController: UIViewController {
     
     // MARK: ✅ Bind
     private func bindViewModel() {
-        homeVM.$quote
-            .sink { [weak self] _ in self?.applySnapshot() }
-            .store(in: &cancellables)
-        
-        homeVM.$recentDiaries
-            .sink { [weak self] _ in self?.applySnapshot() }
-            .store(in: &cancellables)
-        
-        homeVM.$emotionSummary
-            .sink { [weak self] _ in self?.applySnapshot() }
-            .store(in: &cancellables)
-        
-        homeVM.$diaryImages
-            .sink { [weak self] _ in self?.applySnapshot() }
-            .store(in: &cancellables)
+        Publishers.CombineLatest4(
+            homeVM.$quote,
+            homeVM.$recentDiaries,
+            homeVM.$weeklySummary,
+            homeVM.$diaryImages
+        )
+        .receive(on: DispatchQueue.main)
+        .sink { [weak self] _, _, _, _ in
+            self?.applySnapshot()
+        }
+        .store(in: &cancellables)
     }
 
+//    private func bindViewModel() {
+//        homeVM.$quote
+//            .sink { [weak self] _ in self?.applySnapshot() }
+//            .store(in: &cancellables)
+//        
+//        homeVM.$recentDiaries
+//            .sink { [weak self] _ in self?.applySnapshot() }
+//            .store(in: &cancellables)
+//        
+//        homeVM.$weeklySummary
+//            .sink { [weak self] _ in
+//                self?.applySnapshot()
+//            }.store(in: &cancellables)
+//        
+//        homeVM.$emotionSummary
+//            .sink { [weak self] _ in self?.applySnapshot() }
+//            .store(in: &cancellables)
+//        
+//        homeVM.$diaryImages
+//            .sink { [weak self] _ in self?.applySnapshot() }
+//            .store(in: &cancellables)
+//    }
     
     
     // MARK: ✅ Configure UI
@@ -277,13 +306,13 @@ final class HomeViewController: UIViewController {
         // 아이템 정의
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(100.0))
+            heightDimension: .estimated(180.0))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         //item.contentInsets = .init(top: 4, leading: 4, bottom: 4, trailing: 4)
         
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(100))
+            heightDimension: .estimated(180.0))
         let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)

@@ -195,7 +195,8 @@ final class DiaryEditorViewController: UIViewController {
                 
                 cell.onContentChanged = { [weak self] sections in
                     guard let self else { return }
-                    self.currentContentSections = sections
+                    self.diaryEditorVM.contentSections = sections
+                    
                 }
                 
                 return cell
@@ -265,7 +266,7 @@ final class DiaryEditorViewController: UIViewController {
                 cell.onTapSave = { [weak self] in
                     guard let self else { return }
                     
-                    let diaryContent = self.currentContentSections
+                    let diaryContent = self.diaryEditorVM.contentSections
                     
                     self.diaryEditorVM.attemptSaveDiary(
                         situation: diaryContent.situation,

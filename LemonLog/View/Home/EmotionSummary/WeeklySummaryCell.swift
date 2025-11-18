@@ -42,10 +42,10 @@ class WeeklySummaryCell: UICollectionViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         
-        // top3 이미지 초기화
-        for view in topEmotionStackView.arrangedSubviews {
-            (view as? UIImageView)?.image = nil
-            view.isHidden = true 
+        for (idx, view) in topEmotionStackView.arrangedSubviews.enumerated() {
+            guard let imageView = view as? UIImageView else { continue }
+            imageView.image = nil
+            imageView.isHidden = false  // ✔️ label은 숨기지 않는다.
         }
     }
     
@@ -65,7 +65,7 @@ class WeeklySummaryCell: UICollectionViewCell {
         weekLabel.textAlignment = .left
         weekLabel.translatesAutoresizingMaskIntoConstraints = false
         
-        topEmotionLabel.text = "이번 주에 많이 느낀 감정: "
+        topEmotionLabel.text = NSLocalizedString("weeklySummaryCell_topEmotionLabel", comment: "")
         topEmotionLabel.font = .systemFont(ofSize: 12, weight: .semibold)
         topEmotionLabel.textColor = .secondaryLabel
         topEmotionLabel.textAlignment = .left
@@ -93,7 +93,7 @@ class WeeklySummaryCell: UICollectionViewCell {
         }
         
         NSLayoutConstraint.activate([
-            weekLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
+            weekLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
             weekLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             weekLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             
@@ -104,7 +104,7 @@ class WeeklySummaryCell: UICollectionViewCell {
             
             topEmotionStackView.topAnchor.constraint(equalTo: emotionCollectionView.bottomAnchor, constant: 16),
             topEmotionStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            topEmotionStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16)
+            topEmotionStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8)
         ])
     }
     
@@ -167,7 +167,7 @@ extension WeeklySummaryCell: UICollectionViewDataSource, UICollectionViewDelegat
         }
         
         let day = DiaryCoreDataManager.Weekday.allCases[indexPath.item]
-        let emotion = emotions[day] ?? ._1
+        let emotion = emotions[day]
         cell.configure(dayText: day.rawValue, emotion: emotion)
         return cell
     }

@@ -188,10 +188,5 @@ final class DiaryContentCell: UICollectionViewCell {
 }
 
 
-// MARK: ✅ Struct -> 기존 통합하여 보낸 데이터를
-struct ContentSections {
-    let situation: String
-    let thought: String
-    let reeval: String
-    let action: String
-}
+
+

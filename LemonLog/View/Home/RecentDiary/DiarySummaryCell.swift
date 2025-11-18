@@ -91,7 +91,7 @@ class DiarySummaryCell: UICollectionViewCell {
     
     
     // MARK: ✅ Configure Data
-    func configure(with data: EmotionDiaryModel) {
+    func configure(with data: EmotionDiaryModel, summary: String) {
         let dateFormatter: DateFormatter = DateFormatter()
         dateFormatter.dateFormat = "M월 d일"
         
@@ -99,7 +99,7 @@ class DiarySummaryCell: UICollectionViewCell {
         dayLabel.text = convertDate
         
         emotionImage.image = UIImage(named: data.emotion)
-        diaryLabel.text = data.content
+        diaryLabel.text = summary
         
     }
 }

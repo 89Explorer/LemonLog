@@ -10,8 +10,23 @@ import UIKit
 final class SplashViewController: UIViewController {
     
     
+    // MARK: ✅ ViewModel
+    private let homeVM: HomeViewModel
+    
+    
     // MARK: ✅ View
     private var logoImageView: UIImageView = UIImageView()
+    
+    
+    // MARK: ✅ UI
+    init(homeViewModel: HomeViewModel) {
+        self.homeVM = homeViewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     
     // MARK: ✅ Life Cycle
@@ -53,7 +68,7 @@ final class SplashViewController: UIViewController {
     }
     
     private func moveToMain() {
-        let homeVC = HomeViewController()
+        let homeVC = HomeViewController(viewModel: homeVM)
         let navVC = UINavigationController(rootViewController: homeVC)
         navVC.modalTransitionStyle = .crossDissolve
         navVC.modalPresentationStyle = .fullScreen

@@ -60,6 +60,11 @@ final class HomeViewModel: ObservableObject {
                 // 주간 감정 요약
                 self.loadWeeklySummary()
                 
+                Task {
+                    let results = await self.store.fetchFirstImages()
+                    self.diaryImages = results
+                }
+                
             }
             .store(in: &cancellables)
     }
@@ -131,6 +136,7 @@ extension HomeViewModel {
     // 요일별 가장 많이 선택된 감정
     // 예시: 월요일: [😀, 😡, 😀] → 😀
     var mostFrequentEmotionByWeekday: [DiaryCoreDataManager.Weekday: EmotionCategory] {
+        
         var result: [DiaryCoreDataManager.Weekday: EmotionCategory] = [:]
         
         for (weekday, emotions) in weeklySummary {
@@ -140,7 +146,7 @@ extension HomeViewModel {
             let counts = Dictionary(grouping: emotions, by: { $0 }).mapValues { $0.count }
             
             // 가장 많은 감정 수 찾기
-            let maxCount = counts.values.max() ?? 0
+            let maxCount = counts.values.max()
             
             // 등장 횟수가 최대인 감정들 필터링
             let mostFrequent = counts.filter { $0.value == maxCount }.map { $0.key }
@@ -202,6 +208,24 @@ extension HomeViewModel {
 extension HomeViewModel {
     func reloadQuote() {
         happinessViewModel.loadQuote()
+    }
+}
+
+
+// MARK: ✅ 요약 텍스트 만드는 메서드 - content 섹션 값
+extension HomeViewModel {
+    func summaryText(from diary: EmotionDiaryModel) -> String {
+        // 1) content가 JSON인지 확인
+        if let data = diary.content.data(using: .utf8),
+           let content = try? JSONDecoder().decode(ContentSections.self, from: data) {
+
+            // 원하는 방식으로 요약 → 예: 상황만 표시
+            return content.situation
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+
+        // 2) 예전 저장방식 호환
+        return diary.content
     }
 }
 
