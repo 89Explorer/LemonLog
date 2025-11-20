@@ -126,6 +126,7 @@ final class DiaryEditorViewController: UIViewController {
             case .date:
                 
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DiaryDateCell.reuseIdentifier, for: indexPath) as? DiaryDateCell else { return UICollectionViewCell() }
+                
                 cell.configure(date: Date())
                 
                 cell.onTapDate = { [weak self] in
@@ -506,6 +507,12 @@ extension DiaryEditorViewController {
 
 // MARK: ✅ Extension - UIPopoverPresentationControllerDelegate -> 커스텀 캘린더 관련 내용
 extension DiaryEditorViewController: UIPopoverPresentationControllerDelegate {
+    
+    // 사용자가 커스텀 캘린더뷰의 팝오버 바깥을 눌러서 닫았을 때 호출됨
+    func popoverPresentationControllerDidDismissPopover(_ popoverPresentationController: UIPopoverPresentationController) {
+        self.hideDim()
+    }
+    
     func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
         return .none
     }
@@ -770,7 +777,6 @@ extension DiaryEditorViewController {
     }
     
 }
-
 
 
 // MARK: ✅ Extension - DiaryCollectionView 섹션

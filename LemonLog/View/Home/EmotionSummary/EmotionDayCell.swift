@@ -30,6 +30,11 @@ class EmotionDayCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        emotionView.image = nil
+    }
+    
     
     // MARK: ✅ Configure UI
     private func configureUI() {

@@ -124,12 +124,4 @@ extension CalendarViewModel {
 }
 
 
-// MARK: ✅ Extension - Hepler Method
-extension Calendar {
-    
-    // 어떤 날짜가 오더라도 그 달의 1일 00:00 정규화
-    func startOfMonth(for day: Date) -> Date {
-        let comps = dateComponents([.year, .month], from: day)
-        return self.date(from: comps)!   // ← self.date 로 명확히
-    }
-}
+

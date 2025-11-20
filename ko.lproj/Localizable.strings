@@ -94,3 +94,5 @@
 "validation_error_action_required" = "다음 행동을 입력해 주세요.";
 
 
+/* EmotionSummaryHeaderViewModel */
+"week_suffix" = "주차";

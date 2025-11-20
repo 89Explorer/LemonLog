@@ -151,7 +151,7 @@ extension UIViewController {
         guard let dim = view.viewWithTag(dimViewTag) else { return }
 
         if animated {
-            UIView.animate(withDuration: 0.25, animations: {
+            UIView.animate(withDuration: 0.15, animations: {
                 dim.alpha = 0
             }) { _ in
                 dim.removeFromSuperview()
@@ -159,5 +159,16 @@ extension UIViewController {
         } else {
             dim.removeFromSuperview()
         }
+    }
+}
+
+
+// MARK: ✅ Extension - Hepler Method
+extension Calendar {
+    
+    // 어떤 날짜가 오더라도 그 달의 1일 00:00 정규화
+    func startOfMonth(for day: Date) -> Date {
+        let comps = dateComponents([.year, .month], from: day)
+        return self.date(from: comps)!   // ← self.date 로 명확히
     }
 }

@@ -42,12 +42,20 @@ class WeeklySummaryCell: UICollectionViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         
-        for (idx, view) in topEmotionStackView.arrangedSubviews.enumerated() {
-            guard let imageView = view as? UIImageView else { continue }
-            imageView.image = nil
-            imageView.isHidden = false  // ✔️ label은 숨기지 않는다.
+        weekLabel.text = nil
+        emotions = [:]
+        
+        // ✅ 이거 추가
+        emotionCollectionView.reloadData()
+        
+        for view in topEmotionStackView.arrangedSubviews {
+            if let imageView = view as? UIImageView {
+                imageView.image = nil
+                imageView.isHidden = true
+            }
         }
     }
+    
     
     
     // MARK: ✅ Configure UI
@@ -57,7 +65,7 @@ class WeeklySummaryCell: UICollectionViewCell {
         contentView.layer.cornerRadius = 16
         contentView.layer.shadowColor = UIColor.black.withAlphaComponent(0.5).cgColor
         contentView.layer.shadowOpacity = 0.3
-        contentView.layer.shadowRadius = 8
+        contentView.layer.shadowRadius = 4
         contentView.layer.shadowOffset = CGSize(width: 0, height: 4)
         
         weekLabel.font = .systemFont(ofSize: 16, weight: .semibold)
@@ -134,6 +142,10 @@ class WeeklySummaryCell: UICollectionViewCell {
         self.weekLabel.text = weekText
         self.emotions = emotions
         
+        DispatchQueue.main.async {
+            self.emotionCollectionView.reloadData()
+        }
+        
         for (index, view) in topEmotionStackView.arrangedSubviews.enumerated() {
             // 0번은 제목 라벨이므로 건너뜀
             guard let imageView = view as? UIImageView else { continue }
@@ -156,7 +168,7 @@ class WeeklySummaryCell: UICollectionViewCell {
 
 // MARK: ✅ Extension (UICollectionViewDataSource, UICollectionViewDelegateFlowLayout)
 extension WeeklySummaryCell: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-   
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         DiaryCoreDataManager.Weekday.allCases.count
     }
@@ -176,5 +188,5 @@ extension WeeklySummaryCell: UICollectionViewDataSource, UICollectionViewDelegat
         let width = (collectionView.bounds.width - 24) / 7
         return CGSize(width: width, height: 60)
     }
-
+    
 }
