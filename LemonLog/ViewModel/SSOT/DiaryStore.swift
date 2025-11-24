@@ -62,7 +62,9 @@ final class DiaryStore: DiaryProviding {
     }
     
     func diaries(inWeekOf date: Date) -> [EmotionDiaryModel] {
-        let calendar = Calendar.current
+        var calendar = Calendar.current
+        calendar.firstWeekday = 1    // 주 시작 = "일요일"
+        
         guard let start = calendar.dateInterval(of: .weekOfYear, for: date)?.start else { return [] }
         let end = calendar.date(byAdding: .day, value: 7, to: start) ?? date
         return diariesSubject.value.filter { $0.createdAt >= start && $0.createdAt < end }

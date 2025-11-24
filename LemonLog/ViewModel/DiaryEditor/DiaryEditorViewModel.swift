@@ -253,12 +253,3 @@ struct DiaryValidationResult {
     let errors: [DiaryValidationError]   // 여러 개 필드 동시 오류 가능
     var isValid: Bool { errors.isEmpty }
 }
-
-
-// MARK: ✅ Struct -> 기존 통합하여 보낸 데이터를
-struct ContentSections: Codable {
-    let situation: String
-    let thought: String
-    let reeval: String
-    let action: String
-}

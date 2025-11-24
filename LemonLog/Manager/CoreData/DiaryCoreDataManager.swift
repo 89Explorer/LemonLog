@@ -433,6 +433,22 @@ extension DiaryCoreDataManager {
 }
 
 
+extension DiaryCoreDataManager.Weekday {
+    init?(weekdayIndex: Int) {
+        switch weekdayIndex {
+        case 1: self = .sun
+        case 2: self = .mon
+        case 3: self = .tue
+        case 4: self = .wed
+        case 5: self = .thu
+        case 6: self = .fri
+        case 7: self = .sat
+        default: return nil
+        }
+    }
+}
+
+
 /* 리팩토리 전 메서드
 // MARK: - Additional Fetch Functions
 extension DiaryCoreDataManager {

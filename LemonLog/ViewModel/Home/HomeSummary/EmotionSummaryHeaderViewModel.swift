@@ -72,7 +72,7 @@ final class EmotionSummaryHeaderViewModel: ObservableObject {
     }
     
     
-    // MARK: ✅ 월 전체 Summary 로직
+    // MARK: ✅ loadMonthlySummary  월 전체 Summary 로직
     func loadMonthlySummary(for baseDate: Date) {
         
         weeklyModels = []  // 덮어쓰기 방지
@@ -80,19 +80,59 @@ final class EmotionSummaryHeaderViewModel: ObservableObject {
         let repDates = representativeWeekDates(inMonth: baseDate)
         
         let models = repDates.map { date -> WeeklyEmotionSummaryModel in
-            let weekRange = weekRange(for: date)
-            let diaries = store.fetchWeeklySummary(for: date)
+        let diaries = store.fetchWeeklySummary(for: date)
             
-            return WeeklyEmotionSummaryModel(
-                weekDescription: weekDescription(from: weekRange),
-                top3Emotion: top3Emotions(from: diaries),
-                mostFrequentByWeekday: mostFrequentEmotionByWeekday(from: diaries)
-            )
+            return self.makeWeeklyEmotionSummaryModel(for: date, baseMonth: date, weeklySummary: diaries)
         }
         
         self.weeklyModels = models
     }
     
+    
+    // MARK: ✅ makeWeeklyEmotionSummaryModel
+    func makeWeeklyEmotionSummaryModel(
+        for date: Date,
+        baseMonth: Date,
+        weeklySummary: [DiaryCoreDataManager.Weekday: [EmotionCategory]]
+    ) -> WeeklyEmotionSummaryModel {
+        
+        let interval = weekRange(for: date)
+        let weekDates = buildWeekDates(from: interval)
+        
+        return WeeklyEmotionSummaryModel(
+            weekDescription: weekDescription(for: date, inMonth: baseMonth),
+            top3Emotion: top3Emotions(from: weeklySummary),
+            mostFrequentByWeekday: mostFrequentEmotionByWeekday(from: weeklySummary),
+            weekDates: weekDates,
+            baseMonth: baseMonth
+        )
+    }
+    
+    
+    // MARK: ✅ buildWeekDates
+    // 주간 (일 ~ 토) 날짜를 요일 enum으로 매핑해주는 함수
+    func buildWeekDates(from interval: DateInterval) -> [DiaryCoreDataManager.Weekday: Date] {
+        let cal = calendar
+        var dict: [DiaryCoreDataManager.Weekday: Date] = [:]
+
+        // 이번 주의 7일 반복
+        for offset in 0..<7 {
+            
+            // 매일 하루씩 증가한 날짜
+            let day = cal.date(byAdding: .day, value: offset, to: interval.start)!
+            
+            // Calendar 방식 (1 ~ 7) 요일 index
+            let weekdayIndex = cal.component(.weekday, from: day)
+            
+            // 요일 index(Int) → Weekday enum 변환
+            if let weekday = DiaryCoreDataManager.Weekday(weekdayIndex: weekdayIndex) {
+                dict[weekday] = day
+            }
+        }
+
+        return dict
+    }
+
 }
 
 
@@ -100,6 +140,8 @@ final class EmotionSummaryHeaderViewModel: ObservableObject {
 extension EmotionSummaryHeaderViewModel {
     
     
+    // MARK: ✅ representativeWeekDates
+    // 각 주의 대표 날짜를 생성하는 함수
     func representativeWeekDates(inMonth base: Date) -> [Date] {
         
         let cal = calendar
@@ -116,6 +158,8 @@ extension EmotionSummaryHeaderViewModel {
         }
         
         // 2) 마지막 날이 마지막 주에 포함되는지 확인
+        // lastDay -> 30일, lastWeekStart -> 30일, lastRep -> 29일, lastRepWeekStart -> 23일
+        // lastWeekStart과 lastRepWeekStart 둘이 다르면, reps에 포함
         if let lastDay = cal.date(byAdding: .day, value: -1, to: nextMonth) {
             let lastWeekStart = weekStart(for: lastDay)
             
@@ -127,12 +171,17 @@ extension EmotionSummaryHeaderViewModel {
                 }
             }
         }
-        
+    
         return reps.sorted()
     }
     
+    
+    // MARK: ✅ weekStart
+    // 주어진 날짜(date)가 속한 '주(week)'의 시작 요일(일요일)을 구하는 함수
     func weekStart(for date: Date) -> Date {
         let cal = calendar
+        
+        // Calendar 방식 (1 ~ 7) 요일 index
         let weekday = cal.component(.weekday, from: date)
         
         // 일요일 = 1
@@ -140,26 +189,50 @@ extension EmotionSummaryHeaderViewModel {
         return cal.date(byAdding: .day, value: -daysToSunday, to: date)!
     }
     
+    
+    // MARK: ✅ weekRange
+    // 일요일 ~ 토요일까지의 범위 (DateInterval)을 만든는 함수
     func weekRange(for date: Date) -> DateInterval {
         let start = weekStart(for: date)
         let end = calendar.date(byAdding: .day, value: 6, to: start)!
         return DateInterval(start: start, end: end)
     }
     
-    func weekDescription(from interval: DateInterval) -> String {
+    
+    // MARK: ✅ weekNumer
+    // baseMonth 기준으로 date가 몇 번째 주인지 계산
+    func weekNumber(for date: Date, inMonth baseMonth: Date) -> Int {
+        let cal = calendar
+        let monthStart = cal.startOfMonth(for: baseMonth)
+        let firstWeekStart = weekStart(for: monthStart)
         
-        let f = DateFormatter()
-        f.locale = .autoupdatingCurrent
-        f.setLocalizedDateFormatFromTemplate("MMMd")
+        let currentWeekStart = weekStart(for: date)
         
-        let weekOfMonth = calendar.component(.weekOfMonth, from: interval.start)
-        let weekSuffix = NSLocalizedString("week_suffix", comment: "")
+        // 주차 차이 계산
+        let diff = cal.dateComponents([.weekOfYear], from: firstWeekStart, to: currentWeekStart).weekOfYear ?? 0
         
-        return "\(f.string(from: interval.start)) ~ \(f.string(from: interval.end)) (\(weekOfMonth)\(weekSuffix))"
+        return diff + 1
     }
     
     
-    // Most Frequent By Weekday (요일별 최빈 감정)
+    // MARK: ✅ weekDescription
+    // (1월 1일 ~ 1월 7일 (1주차))
+    func weekDescription(for date: Date, inMonth baseMonth: Date) -> String {
+        let range = weekRange(for: date)
+
+        let f = DateFormatter()
+        f.locale = .autoupdatingCurrent
+        f.setLocalizedDateFormatFromTemplate("MMMd")
+
+        let weekNum = weekNumber(for: date, inMonth: baseMonth)
+        let weekSuffix = NSLocalizedString("week_suffix", comment: "")
+
+        return "\(f.string(from: range.start)) ~ \(f.string(from: range.end)) (\(weekNum)\(weekSuffix))"
+    }
+    
+    
+    // ✅ MARK: mostFrequentEmotionByWeekday
+    // (요일별 최빈 감정)
     func mostFrequentEmotionByWeekday(
         from weeklySummary: [DiaryCoreDataManager.Weekday: [EmotionCategory]]
     ) -> [DiaryCoreDataManager.Weekday: EmotionCategory] {
@@ -183,7 +256,7 @@ extension EmotionSummaryHeaderViewModel {
     }
     
     
-    // Top 3 Emotions
+    // MARK: ✅ Top 3 Emotions
     func top3Emotions(from weeklySummary: [DiaryCoreDataManager.Weekday: [EmotionCategory]]) -> [EmotionCategory] {
         
         let all = weeklySummary.values.flatMap { $0 }

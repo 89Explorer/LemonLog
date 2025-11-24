@@ -15,6 +15,15 @@ class WeeklySummaryCell: UICollectionViewCell {
     static let reuseIdentifier: String = "WeeklySummaryCell"
     
     
+    // MARK: ✅ Data
+    private var weekDates: [DiaryCoreDataManager.Weekday: Date] = [:]
+    private var baseMonth: Date = Date()
+    private var model: WeeklyEmotionSummaryModel?
+    
+    // MARK: ✅ Closure
+    var onTappedDetailText: ((WeeklyEmotionSummaryModel) -> Void)?
+    
+    
     // MARK: ✅ Property
     private var emotions: [DiaryCoreDataManager.Weekday: EmotionCategory] = [:]
     
@@ -23,6 +32,7 @@ class WeeklySummaryCell: UICollectionViewCell {
     private let weekLabel: UILabel = UILabel()
     private let topEmotionLabel: UILabel = UILabel()
     private let topEmotionStackView: UIStackView = UIStackView()
+    private let detailTextLabel: UILabel = UILabel()
     private var emotionCollectionView: UICollectionView!
     
     
@@ -31,6 +41,7 @@ class WeeklySummaryCell: UICollectionViewCell {
         super.init(frame: frame)
         configureCollectionView()
         configureUI()
+        configureTapGesture()
     }
     
     required init?(coder: NSCoder) {
@@ -55,7 +66,6 @@ class WeeklySummaryCell: UICollectionViewCell {
             }
         }
     }
-    
     
     
     // MARK: ✅ Configure UI
@@ -86,10 +96,17 @@ class WeeklySummaryCell: UICollectionViewCell {
         
         emotionCollectionView.translatesAutoresizingMaskIntoConstraints = false
         
+        detailTextLabel.text = "더보기"
+        detailTextLabel.font = .systemFont(ofSize: 12, weight: .bold)
+        detailTextLabel.textColor = .systemGray
+        detailTextLabel.isUserInteractionEnabled = true
+        detailTextLabel.translatesAutoresizingMaskIntoConstraints = false
+        
         contentView.addSubview(weekLabel)
         contentView.addSubview(emotionCollectionView)
         contentView.addSubview(topEmotionStackView)
         topEmotionStackView.addArrangedSubview(topEmotionLabel)
+        contentView.addSubview(detailTextLabel)
         
         // 이미지 자리 미리 추가
         for _ in 0..<3 {
@@ -112,7 +129,10 @@ class WeeklySummaryCell: UICollectionViewCell {
             
             topEmotionStackView.topAnchor.constraint(equalTo: emotionCollectionView.bottomAnchor, constant: 16),
             topEmotionStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            topEmotionStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12)
+            topEmotionStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12),
+            
+            detailTextLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
+            detailTextLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12)
         ])
     }
     
@@ -135,26 +155,30 @@ class WeeklySummaryCell: UICollectionViewCell {
     
     // MARK: ✅ Configure Data
     func configure(
-        weekText: String,
-        emotions: [DiaryCoreDataManager.Weekday: EmotionCategory],
-        top3: [EmotionCategory]
+        model: WeeklyEmotionSummaryModel
     ) {
-        self.weekLabel.text = weekText
-        self.emotions = emotions
-        
+        self.model = model
+        self.weekLabel.text = model.weekDescription
+        self.emotions = model.mostFrequentByWeekday
+        self.weekDates = model.weekDates
+        self.baseMonth = model.baseMonth
+
         DispatchQueue.main.async {
             self.emotionCollectionView.reloadData()
         }
-        
+
+        updateTop3Emotions(model.top3Emotion)
+    }
+    
+    
+    // MARK: ✅ updateTop3Emotions
+    private func updateTop3Emotions(_ top3: [EmotionCategory]) {
         for (index, view) in topEmotionStackView.arrangedSubviews.enumerated() {
-            // 0번은 제목 라벨이므로 건너뜀
             guard let imageView = view as? UIImageView else { continue }
-            let emotionIndex = index - 1     // 이미뷰는 1,2,3번째
+            let emotionIndex = index - 1 // 첫 번째는 라벨이니까
             
             if emotionIndex >= 0 && emotionIndex < top3.count {
                 let emotion = top3[emotionIndex]
-                
-                // 렌더링 모드, 사이즈 문제 회피용: 원본으로 표시
                 imageView.image = emotion.emotionImage?.withRenderingMode(.alwaysOriginal)
                 imageView.isHidden = false
             } else {
@@ -163,6 +187,21 @@ class WeeklySummaryCell: UICollectionViewCell {
             }
         }
     }
+    
+    
+    // MARK: ✅ Tap Gesture
+    private func configureTapGesture() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(tappedDetailText))
+        detailTextLabel.addGestureRecognizer(tap)
+    }
+    
+    
+    // MARK: ✅ Action Method
+    @objc private func tappedDetailText() {
+        guard let model = model else { return }
+        onTappedDetailText?(model)
+    }
+
 }
 
 
@@ -180,7 +219,14 @@ extension WeeklySummaryCell: UICollectionViewDataSource, UICollectionViewDelegat
         
         let day = DiaryCoreDataManager.Weekday.allCases[indexPath.item]
         let emotion = emotions[day]
-        cell.configure(dayText: day.rawValue, emotion: emotion)
+        let date = weekDates[day] ?? Date()
+        cell.configure(
+            dayText: day.rawValue,
+            emotion: emotion,
+            date: date,
+            baseMonth: baseMonth
+        )
+
         return cell
     }
     

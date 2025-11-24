@@ -56,7 +56,6 @@ class EmotionDayCell: UICollectionViewCell {
         innerStackView.spacing = 4
         innerStackView.translatesAutoresizingMaskIntoConstraints = false
         
-        
         contentView.addSubview(innerStackView)
         
         NSLayoutConstraint.activate([
@@ -67,21 +66,35 @@ class EmotionDayCell: UICollectionViewCell {
             
             seperator.heightAnchor.constraint(equalToConstant: 1),
             
-            emotionView.heightAnchor.constraint(equalToConstant: 20),
+            emotionView.heightAnchor.constraint(equalToConstant: 20)
+    
         ])
     }
     
     
     // MARK: ✅ Configure Data
-    func configure(dayText: String, emotion: EmotionCategory?) {
+    func configure(
+        dayText: String,
+        emotion: EmotionCategory?,
+        date: Date,
+        baseMonth: Date
+    ) {
         dayLabel.text = dayText
+        emotionView.image = emotion?.emotionImage?.withRenderingMode(.alwaysOriginal)
+
+        let cal = Calendar.current
+
+        let sameMonth: Bool = cal.component(.month, from: date) == cal.component(.month, from: baseMonth)
+        let isToday: Bool = cal.isDateInToday(date)
+        // 이번 달 날짜 → 진한 색
+        // 다른 달 날짜 → 연한 회색
+        dayLabel.textColor = sameMonth ? .black : .gray
+        emotionView.alpha = sameMonth ? 1.0 : 0.4
         
-        if let emotion {
-            emotionView.image = emotion.emotionImage
-            emotionView.alpha = 1.0
-        } else {
-            emotionView.image = nil
-            emotionView.alpha = 0.15
-        }
+        contentView.layer.borderWidth = isToday ? 2.0 : 0.0
+        contentView.layer.borderColor = isToday ? UIColor.black.cgColor : nil
+        
+        contentView.backgroundColor = sameMonth ? .systemGreen.withAlphaComponent(0.2) : .systemRed.withAlphaComponent(0.2)
     }
+
 }
