@@ -174,3 +174,30 @@ extension Calendar {
 }
 
 
+// MARK: ✅ TopAlignedLabel
+final class TopAlignedLabel: UILabel {
+    override func drawText(in rect: CGRect) {
+        // 텍스트 높이를 계산
+        guard let text = self.text else {
+            super.drawText(in: rect)
+            return
+        }
+
+        let textRect = (text as NSString).boundingRect(
+            with: CGSize(width: rect.width, height: .greatestFiniteMagnitude),
+            options: .usesLineFragmentOrigin,
+            attributes: [.font: self.font as Any],
+            context: nil
+        )
+
+        // 상단 정렬
+        let newRect = CGRect(
+            x: rect.origin.x,
+            y: rect.origin.y,  // ← 여기! 상단으로 고정
+            width: rect.width,
+            height: textRect.height
+        )
+
+        super.drawText(in: newRect)
+    }
+}

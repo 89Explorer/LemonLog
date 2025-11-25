@@ -36,6 +36,19 @@ class HomeEmotionSummaryViewController: UIViewController {
         configureUI()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        guard let baseDate = diariesFromWeek.first?.createdAt else {
+            diariesFromWeek = []
+            tableView.reloadData()
+            return
+        }
+        
+        diariesFromWeek = DiaryStore.shared.diaries(inWeekOf: baseDate)
+        tableView.reloadData()
+    }
+    
     
     // MARK: ✅ Configure UI
     private func configureUI() {
@@ -125,7 +138,6 @@ extension HomeEmotionSummaryViewController {
 
         let barButtonItem = UIBarButtonItem(customView: backButton)
         navigationItem.leftBarButtonItem = barButtonItem
-        
         
     }
     

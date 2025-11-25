@@ -7,7 +7,8 @@
 
 import UIKit
 
-class DetailDiaryViewController: UIViewController {
+
+final class DetailDiaryViewController: UIViewController {
     
     
     // MARK: ✅ NSLayoutConstraint -> 이미지뷰
@@ -285,10 +286,135 @@ extension DetailDiaryViewController {
         backBarButton.tintColor = .black
         
         navigationItem.leftBarButtonItem = backBarButton
+        
+        let settingImage = UIImage(systemName: "ellipsis", withConfiguration: config)
+        let settingButton = UIBarButtonItem(image: settingImage, style: .plain, target: self, action: #selector(didTappedSetting))
+        settingButton.tintColor = .black
+        
+        navigationItem.rightBarButtonItem = settingButton
+        
     }
     
     @objc private func didTappedBack() {
         navigationController?.dismiss(animated: true)
     }
+    
+    @objc private func didTappedSetting() {
+        print("눌렸다.")
+        showSettingActionSheet()
+    }
+}
+
+
+
+// MARK: ✅ Extension - showSettingActionSheet 함수
+extension DetailDiaryViewController {
+    
+    func showSettingActionSheet() {
+        
+        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        
+        // 수정
+        let editAction = UIAlertAction(
+            title: NSLocalizedString("edit_action", comment: "Edit diary"),
+            style: .default
+        ) { [weak self] _ in
+            self?.handleEdit()
+        }
+        alert.addAction(editAction)
+        
+        
+        // 삭제
+        let deleteAction = UIAlertAction(
+            title: NSLocalizedString("delete_action", comment: "Delete diary"),
+            style: .destructive
+        ) { [weak self] _ in
+            self?.showDeleteConfirmation()
+        }
+        alert.addAction(deleteAction)
+        
+        
+        // 취소
+        let cancelAction = UIAlertAction(
+            title: NSLocalizedString("cancel_action", comment: "Cancel action"),
+            style: .cancel,
+            handler: nil
+        )
+        alert.addAction(cancelAction)
+
+        present(alert, animated: true)
+    }
+    
+    
+    // 삭제 버튼을 눌렀을 때 확인창 여는 함수
+    private func showDeleteConfirmation() {
+
+        let title = NSLocalizedString("delete_confirm_title", comment: "Delete diary confirmation")
+
+        let message = NSLocalizedString("delete_confirm_message", comment: "Delete diary confirmation")
+
+        let confirmAlert = UIAlertController(
+            title: title,
+            message: message,
+            preferredStyle: .alert
+        )
+
+        let confirmDelete = UIAlertAction(
+            title: NSLocalizedString("delete_action", comment: "Confirm delete"),
+            style: .destructive
+        ) { [weak self] _ in
+            self?.handleDelete()
+        }
+        confirmAlert.addAction(confirmDelete)
+
+        let cancel = UIAlertAction(
+            title: NSLocalizedString("cancel_action", comment: "Cancel"),
+            style: .cancel,
+            handler: nil
+        )
+        confirmAlert.addAction(cancel)
+
+        present(confirmAlert, animated: true)
+    }
+    
+    
+    private func handleDelete() {
+        // 여기서 CoreData 삭제 또는 ViewModel 호출 등 처리
+        print("삭제 실행")
+        DiaryStore.shared.delete(id: diary.id.uuidString)
+        navigationController?.dismiss(animated: true)
+    }
+    
+//    private func handleEdit() {
+//    
+//        let selectedDiary = diary
+//        let editVC = DiaryEditorViewController(mode: .edit(selectedDiary))
+//        let naviToEditorVC = UINavigationController(rootViewController: editVC)
+//        naviToEditorVC.modalPresentationStyle = .fullScreen
+//        naviToEditorVC.modalTransitionStyle = .coverVertical
+//        present(naviToEditorVC, animated: true)
+//        
+//    }
+    
+    private func handleEdit() {
+        let selectedDiary = diary
+        let editVC = DiaryEditorViewController(mode: .edit(selectedDiary))
+        let nav = UINavigationController(rootViewController: editVC)
+        nav.modalPresentationStyle = .fullScreen
+        nav.modalTransitionStyle = .coverVertical
+        
+        // 상위 presentingViewController를 가져옴
+        guard let presenter = self.presentingViewController else {
+            return
+        }
+        
+        // 1) DetailDiaryVC dismiss
+        self.dismiss(animated: false) {
+            // 2) DetailDiaryVC를 띄운 쪽에서 present
+            presenter.present(nav, animated: true)
+        }
+    
+    }
+
 }
 

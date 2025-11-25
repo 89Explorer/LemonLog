@@ -96,3 +96,12 @@
 
 /* EmotionSummaryHeaderViewModel */
 "week_suffix" = "주차";
+
+
+/* DetailDiaryViewController - 설정 */
+"edit_action" = "수정";
+"delete_action" = "삭제";
+"cancel_action" = "취소";
+"delete_confirm_title" = "정말로 일기를 삭제할까요?";
+"delete_confirm_message" = "삭제 후에는 되돌릴 수 없습니다.";
+

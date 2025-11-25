@@ -127,7 +127,8 @@ final class DiaryEditorViewController: UIViewController {
                 
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DiaryDateCell.reuseIdentifier, for: indexPath) as? DiaryDateCell else { return UICollectionViewCell() }
                 
-                cell.configure(date: Date())
+                let date = self.diaryEditorVM.diary.createdAt
+                cell.configure(date: date)
                 
                 cell.onTapDate = { [weak self] in
                     guard let self else { return }
@@ -163,6 +164,11 @@ final class DiaryEditorViewController: UIViewController {
                 
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: EmotionCell.reuseIdentifier, for: indexPath) as? EmotionCell else { return UICollectionViewCell() }
                 
+                // 기존 emotion 표시
+                if let emotion = self.diaryEditorVM.diary.emotionCategory {
+                    cell.configure(with: emotion)
+                }
+                
                 cell.onAddButtonTapped = {
                     let emotionVC = EmotionViewController()
                     
@@ -190,6 +196,9 @@ final class DiaryEditorViewController: UIViewController {
                     return UICollectionViewCell()
                 }
                 
+                let content = self.diaryEditorVM.contentSections
+                cell.configure(with: content)
+                
                 cell.onFocusChanged = { [weak self] view in
                     guard let self else { return }
                     // ✅ 포커스된 텍스트뷰의 전역 좌표를 저장
@@ -209,6 +218,10 @@ final class DiaryEditorViewController: UIViewController {
                 
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DiaryPhotoGalleryCell.reuseIdentifier, for: indexPath) as? DiaryPhotoGalleryCell else {
                     return UICollectionViewCell()
+                }
+                
+                if let images = self.diaryEditorVM.diary.images {
+                    cell.updateImages(images)
                 }
                 
                 // 기존의 Cell 에서 parentViewController()를 통해 호출하는 방식에서 클로저로 변환

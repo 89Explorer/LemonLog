@@ -161,6 +161,13 @@ final class DiaryContentView: UIView {
     }
     
     
+    func setText(_ text: String) {
+        textView.text = text
+        placeholderLabel1.isHidden = !text.isEmpty
+        placeholderLabel2.isHidden = !text.isEmpty
+    }
+    
+    
     // MARK: ✅ showError()
     func showError(message: String) {
         errorLabel.text = message

@@ -93,6 +93,14 @@ final class DiaryContentCell: UICollectionViewCell {
     }
     
     
+    // MARK: ✅ Configure Data
+    func configure(with sections: ContentSections) {
+        situationSection.setText(sections.situation)
+        thoughtSection.setText(sections.thought)
+        reevalSection.setText(sections.reeval)
+        actionSection.setText(sections.action)
+    }
+    
     // MARK: ✅ Setup Bindings
     private func bindSections() {
         let allSections = [situationSection, thoughtSection, reevalSection, actionSection]
