@@ -63,8 +63,8 @@ final class PhotoPreviewViewController: UIViewController {
         collectionView.register(PreviewImageCell.self, forCellWithReuseIdentifier: PreviewImageCell.reuseIdentifier)
         
         pageLabel = UILabel()
-        pageLabel.font = .systemFont(ofSize: 12, weight: .bold)
-        pageLabel.textColor = .label
+        pageLabel.font = .systemFont(ofSize: 20, weight: .bold)
+        pageLabel.textColor = .systemBlue
         pageLabel.textAlignment = .center
         pageLabel.translatesAutoresizingMaskIntoConstraints = false
         
@@ -73,7 +73,7 @@ final class PhotoPreviewViewController: UIViewController {
         
         closeBtn = UIButton(type: .system)
         closeBtn.setImage(closeImage, for: .normal)
-        closeBtn.tintColor = .label
+        closeBtn.tintColor = .systemBlue
         closeBtn.translatesAutoresizingMaskIntoConstraints = false
         
         closeBtn.addTarget(self, action: #selector(closeTapped), for: .touchUpInside)

@@ -91,6 +91,17 @@ extension HomeEmotionSummaryViewController: UITableViewDataSource, UITableViewDe
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 200
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let selectedItem = diariesFromWeek[indexPath.row]
+        print("selectedItem: \(selectedItem.summaryText)")
+        
+        let detailVC = DetailDiaryViewController(from: selectedItem)
+        let naviDetailVC = UINavigationController(rootViewController: detailVC)
+        naviDetailVC.modalPresentationStyle = .fullScreen
+        naviDetailVC.modalTransitionStyle = .coverVertical
+        self.present(naviDetailVC, animated: true)
+    }
 
 }
 

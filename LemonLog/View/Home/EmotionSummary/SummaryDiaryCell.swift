@@ -145,16 +145,16 @@ final class SummaryDiaryCell: UITableViewCell {
         
         NSLayoutConstraint.activate([
             
-            situationLabel.leadingAnchor.constraint(equalTo: leftContainer.trailingAnchor, constant: 8),
-            situationLabel.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 8),
-            situationLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -8),
-            situationLabel.heightAnchor.constraint(equalTo: cardView.heightAnchor, multiplier: 0.35),
-           
-            imagesContainer.leadingAnchor.constraint(equalTo: situationLabel.leadingAnchor, constant: 0),
-            imagesContainer.topAnchor.constraint(equalTo: situationLabel.bottomAnchor, constant: 8),
+            imagesContainer.leadingAnchor.constraint(equalTo: leftContainer.trailingAnchor, constant: 8),
+            imagesContainer.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 8),
             imagesContainer.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -8),
-            imagesContainer.bottomAnchor.constraint(equalTo: cardView.bottomAnchor, constant: -8)
+            imagesContainer.heightAnchor.constraint(equalTo: cardView.heightAnchor, multiplier: 0.55),
             
+            situationLabel.leadingAnchor.constraint(equalTo: imagesContainer.leadingAnchor, constant: 0),
+            situationLabel.topAnchor.constraint(equalTo: imagesContainer.bottomAnchor, constant: 8),
+            situationLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -8),
+            situationLabel.bottomAnchor.constraint(equalTo: cardView.bottomAnchor, constant: -8)
+
         ])
     }
     
