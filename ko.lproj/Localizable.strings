@@ -105,3 +105,8 @@
 "delete_confirm_title" = "정말로 일기를 삭제할까요?";
 "delete_confirm_message" = "삭제 후에는 되돌릴 수 없습니다.";
 
+
+/* Helper - Toast Message */
+"toast.saved" = "저장했습니다.";
+"toast.updated" = "수정했습니다.";
+"toast.deleted" = "삭제했습니다.";

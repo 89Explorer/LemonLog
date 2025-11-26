@@ -290,6 +290,14 @@ final class DiaryEditorViewController: UIViewController {
                         reeval: diaryContent.reeval,
                         action: diaryContent.action
                     )
+                    
+                    switch self.diaryEditorVM.mode {
+                    case .create:
+                        ToastManager.show(.saved)
+                    default:
+                        ToastManager.show(.updated)
+                    }
+                    
                 }
                 
                 return cell

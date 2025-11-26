@@ -377,24 +377,13 @@ extension DetailDiaryViewController {
         present(confirmAlert, animated: true)
     }
     
-    
     private func handleDelete() {
         // 여기서 CoreData 삭제 또는 ViewModel 호출 등 처리
         print("삭제 실행")
         DiaryStore.shared.delete(id: diary.id.uuidString)
         navigationController?.dismiss(animated: true)
+        ToastManager.show(.deleted)
     }
-    
-//    private func handleEdit() {
-//    
-//        let selectedDiary = diary
-//        let editVC = DiaryEditorViewController(mode: .edit(selectedDiary))
-//        let naviToEditorVC = UINavigationController(rootViewController: editVC)
-//        naviToEditorVC.modalPresentationStyle = .fullScreen
-//        naviToEditorVC.modalTransitionStyle = .coverVertical
-//        present(naviToEditorVC, animated: true)
-//        
-//    }
     
     private func handleEdit() {
         let selectedDiary = diary
