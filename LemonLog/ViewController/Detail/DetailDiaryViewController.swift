@@ -103,8 +103,10 @@ final class DetailDiaryViewController: UIViewController {
         // CONTENT LABEL --------------------------------------
         contentLabel.font = .systemFont(ofSize: 16, weight: .regular)
         contentLabel.textColor = .black
-        contentLabel.textAlignment = .left
+        contentLabel.textAlignment = .center
         contentLabel.numberOfLines = 0
+        contentLabel.lineBreakMode = .byWordWrapping
+        contentLabel.lineBreakStrategy = .hangulWordPriority
         contentLabel.translatesAutoresizingMaskIntoConstraints = false
         
         view.addSubview(imagesContainer)
@@ -133,8 +135,8 @@ final class DetailDiaryViewController: UIViewController {
             emojiImageView.widthAnchor.constraint(equalToConstant: 28),
             emojiImageView.heightAnchor.constraint(equalTo: emojiImageView.widthAnchor),
     
-            contentLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            contentLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            contentLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
+            contentLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
             contentLabel.topAnchor.constraint(equalTo: emojiImageView.bottomAnchor, constant: 12),
         
         ])

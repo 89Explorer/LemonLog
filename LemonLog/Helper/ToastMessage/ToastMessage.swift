@@ -21,7 +21,6 @@ final class ToastManager {
 }
 
 
-
 // MARK: ✅ Enum - 토스트 메시지 보이는 위치 설정
 enum ToastPosition {
     case top

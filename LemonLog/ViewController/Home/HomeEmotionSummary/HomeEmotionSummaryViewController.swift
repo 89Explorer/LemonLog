@@ -111,9 +111,7 @@ extension HomeEmotionSummaryViewController: UITableViewDataSource, UITableViewDe
         
         let detailVC = DetailDiaryViewController(from: selectedItem)
         let naviDetailVC = UINavigationController(rootViewController: detailVC)
-        naviDetailVC.modalPresentationStyle = .fullScreen
-        naviDetailVC.modalTransitionStyle = .coverVertical
-        self.present(naviDetailVC, animated: true)
+        self.navigationController?.present(naviDetailVC, animated: true)
     }
 
 }
@@ -142,7 +140,7 @@ extension HomeEmotionSummaryViewController {
     }
     
     @objc private func didTapDismiss() {
-        navigationController?.popViewController(animated: true)
+        self.navigationController?.popViewController(animated: true)
     }
     
 }

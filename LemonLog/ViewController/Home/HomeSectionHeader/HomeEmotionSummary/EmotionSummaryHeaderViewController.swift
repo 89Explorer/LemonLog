@@ -15,6 +15,7 @@ class EmotionSummaryHeaderViewController: UIViewController {
     
     // MARK: ✅ ViewModel
     private let emotionSummaryVM: EmotionSummaryHeaderViewModel
+    private let homeVM: HomeViewModel
     private var cancellables = Set<AnyCancellable>()
     
     
@@ -32,7 +33,8 @@ class EmotionSummaryHeaderViewController: UIViewController {
     
     
     // MARK: ✅ Init
-    init() {
+    init(homeVM: HomeViewModel) {
+        self.homeVM = homeVM
         self.emotionSummaryVM = EmotionSummaryHeaderViewModel()
         super.init(nibName: nil, bundle: nil)
     }
@@ -69,6 +71,11 @@ class EmotionSummaryHeaderViewController: UIViewController {
                 self?.summaryCollectionView.reloadData()
             }
             .store(in: &cancellables)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        emotionSummaryVM.reloadCurrentMonth()
     }
     
     
@@ -163,7 +170,8 @@ extension EmotionSummaryHeaderViewController {
     
     
     @objc private func didTappedBack() {
-        navigationController?.dismiss(animated: true)
+        //navigationController?.dismiss(animated: true)
+        self.navigationController?.popViewController(animated: true)
     }
 }
 
@@ -190,7 +198,11 @@ extension EmotionSummaryHeaderViewController: UICollectionViewDataSource,
         cell.configure(
             model: model
         )
-
+        
+        cell.onTappedDetailText = { [weak self] summaryModel in
+            self?.homeVM.didSelectWeeklySummary(summaryModel.weekDates)
+        }
+        
         return cell
     }
 

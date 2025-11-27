@@ -48,6 +48,11 @@ final class EmotionSummaryHeaderViewModel: ObservableObject {
         
     }
     
+    // 현재 currentMonth 기준으로 다시 요약
+    func reloadCurrentMonth() {
+        loadMonthlySummary(for: currentMonth)
+    }
+    
     
     // MARK: ✅ monthTitle
     func monthTitle() -> String {

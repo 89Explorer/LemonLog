@@ -56,6 +56,7 @@ class WeeklySummaryCell: UICollectionViewCell {
         weekLabel.text = nil
         emotions = [:]
         
+        onTappedDetailText = nil
         // ✅ 이거 추가
         emotionCollectionView.reloadData()
         
