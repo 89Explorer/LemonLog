@@ -13,6 +13,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     // 🔥 앱 전역에서 단 하나만 존재하는 HomeViewModel
     let homeViewModel = HomeViewModel()
+    let quoteVM = QuoteViewModel()
+    let mainHomeViewModel = MainHomeViewModel()
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
@@ -24,7 +26,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: windowScene)
         
         // 3. 루트 뷰 컨트롤러. 설정
-        let mainVC = SplashViewController(homeViewModel: homeViewModel)
+        let mainVC = SplashViewController(mainHomeVM: mainHomeViewModel)
         window?.rootViewController = mainVC
         
         // 4. 화면에 표시 (필수)

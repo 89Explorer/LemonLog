@@ -65,7 +65,7 @@ final class CalendarDayCell: UICollectionViewCell {
         with date: Date?,
         in month: Date,
         isSelected: Bool,
-        calendar: CalendarViewModel
+        calendarVM: CalendarViewModel
     ) {
         guard let date else {
             dateLabel.text = ""
@@ -74,25 +74,31 @@ final class CalendarDayCell: UICollectionViewCell {
         }
         
         // 날짜 표시
-        let day = Calendar.current.component(.day, from: date)
+        let calendar = calendarVM.calendar
+        
+        let day = calendar.component(.day, from: date)
         dateLabel.text = "\(day)"
         
         // 요일별 색상 설정
-        let weekday = Calendar.current.component(.weekday, from: date)
-        switch weekday {
-        case 1: dateLabel.textColor = .systemRed    // 일요일
-        case 7: dateLabel.textColor = .systemBlue   // 토요일
-        default: dateLabel.textColor = .black
+        let index = calendarVM.rotatedWeekdayIndex(for: date)
+
+        if index == 0 {              // 헤더 기준 첫 번째 요일 = Sunday
+            dateLabel.textColor = .systemRed
+        } else if index == 6 {       // 헤더 기준 마지막 요일 = Saturday
+            dateLabel.textColor = .systemBlue
+        } else {
+            dateLabel.textColor = .label
         }
+
         
         // CalendarMode에 따라 표시 / 비표시
-        switch calendar.mode {
-        case .dateOnly:
-            emotionImageView.isHidden = true
-        case .withEmotion:
-            emotionImageView.isHidden = false
-            emotionImageView.image = UIImage(systemName: "flag.fill")
-        }
+//        switch calendarVM.mode {
+//        case .dateOnly:
+//            emotionImageView.isHidden = true
+//        case .withDiary:
+//            emotionImageView.isHidden = false
+//            emotionImageView.image = UIImage(systemName: "flag.fill")
+//        }
         
         // 선택 상태, 다른 달 여부에 따른 시각적 표시
         if isSelected {

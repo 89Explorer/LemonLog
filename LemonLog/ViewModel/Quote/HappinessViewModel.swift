@@ -29,14 +29,32 @@ final class HappinessViewModel: ObservableObject {
     // MARK: ✅ Method
     func loadQuote() {
         service.fetchRandomQuote()
+            .filter { quote in
+                let count = quote.content.count
+                return (10...80).contains(count)
+            }
+            .retry(10)  // 최대 10번까지 재요청
             .sink(receiveCompletion: { completion in
                 if case .failure(let error) = completion {
                     LogManager.print(.error, "명언 불러오기 실패: \(error.localizedDescription)")
                 }
             }, receiveValue: { [weak self] quoteData in
                 self?.quote = quoteData
-                LogManager.print(.success, "명언 업데이트 완료")
+                LogManager.print(.success, "명언 업데이트 완료 (글자수 \(quoteData.content.count))")
             })
             .store(in: &cancellables)
     }
+
+//    func loadQuote() {
+//        service.fetchRandomQuote()
+//            .sink(receiveCompletion: { completion in
+//                if case .failure(let error) = completion {
+//                    LogManager.print(.error, "명언 불러오기 실패: \(error.localizedDescription)")
+//                }
+//            }, receiveValue: { [weak self] quoteData in
+//                self?.quote = quoteData
+//                LogManager.print(.success, "명언 업데이트 완료")
+//            })
+//            .store(in: &cancellables)
+//    }
 }

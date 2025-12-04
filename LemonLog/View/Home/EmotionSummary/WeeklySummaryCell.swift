@@ -72,12 +72,14 @@ class WeeklySummaryCell: UICollectionViewCell {
     // MARK: ✅ Configure UI
     private func configureUI() {
         //contentView.backgroundColor = UIColor.vanillaCream
-        contentView.backgroundColor = .secondarySystemBackground
-        contentView.layer.cornerRadius = 16
-        contentView.layer.shadowColor = UIColor.black.withAlphaComponent(0.5).cgColor
-        contentView.layer.shadowOpacity = 0.3
-        contentView.layer.shadowRadius = 4
-        contentView.layer.shadowOffset = CGSize(width: 0, height: 4)
+        contentView.backgroundColor = .clear
+        contentView.layer.cornerRadius = 24
+        contentView.layer.borderWidth = 1.0
+        contentView.layer.borderColor = UIColor.systemGray.cgColor
+        //contentView.layer.shadowColor = UIColor.softMint.withAlphaComponent(0.9).cgColor
+        //contentView.layer.shadowOpacity = 0.8
+        //contentView.layer.shadowRadius = 4
+        //contentView.layer.shadowOffset = CGSize(width: 0, height: 0)
         
         weekLabel.font = .systemFont(ofSize: 16, weight: .semibold)
         weekLabel.textColor = .label

@@ -201,3 +201,16 @@ final class TopAlignedLabel: UILabel {
         super.drawText(in: newRect)
     }
 }
+
+
+// MARK: ✅ Extension (Calendar)
+extension Calendar {
+    func isSameDay(_ a: Date, _ b: Date) -> Bool {
+        isDate(a, inSameDayAs: b)
+    }
+
+    func isSameMonth(_ a: Date, _ b: Date) -> Bool {
+        isDate(a, equalTo: b, toGranularity: .month)
+    }
+}
+

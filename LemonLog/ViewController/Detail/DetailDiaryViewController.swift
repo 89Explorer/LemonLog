@@ -116,9 +116,9 @@ final class DetailDiaryViewController: UIViewController {
         view.addSubview(contentLabel)
         
         NSLayoutConstraint.activate([
-            imagesContainer.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 8),
+            imagesContainer.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
             imagesContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
-            imagesContainer.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -8),
+            imagesContainer.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
             //imagesContainer.heightAnchor.constraint(equalToConstant: 320),
         
             dateLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -384,7 +384,7 @@ extension DetailDiaryViewController {
         print("삭제 실행")
         DiaryStore.shared.delete(id: diary.id.uuidString)
         navigationController?.dismiss(animated: true)
-        ToastManager.show(.deleted)
+        ToastManager.show(.deleted, position: .center)
     }
     
     private func handleEdit() {

@@ -84,6 +84,10 @@ final class DiaryStore: DiaryProviding {
         await manager.fetchFirstImages()
     }
     
+    func fetchAllImages() async -> [(image: UIImage?, diaryID: String)] {
+        await manager.fetchAllDiaryImages()
+    }
+    
     
     // MARK: ✅ Write
     @discardableResult

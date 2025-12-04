@@ -4,8 +4,18 @@
 //
 //  Created by 권정근 on 10/25/25.
 //
+// ▶️ Git Gist 에서 생성한 커스텀 API를 호출하는 데이터 모델 - CustomQoute ◀️
 
 import Foundation
+
+
+// MARK: ✅ 커스텀 명언 데이터 (새 API 대응)
+struct CustomQuote: Decodable, Identifiable, Hashable, Sendable {
+    let id: Int
+    let category: String
+    let text: String
+    let source: String
+}
 
 
 // MARK: ✅ 실제 명언 데이터 (새 API 대응)

@@ -42,6 +42,9 @@ protocol DiaryProviding: AnyObject {
     // 대표 이미지 로드
     func fetchFirstImages() async -> [(image: UIImage?, diaryID: String)]
     
+    // 전체 이미지를 로드
+    func fetchAllImages() async -> [(image: UIImage?, diaryID: String)]
+    
     
     // MARK: ✅ Write
     @discardableResult

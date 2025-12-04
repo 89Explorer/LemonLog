@@ -293,9 +293,9 @@ final class DiaryEditorViewController: UIViewController {
                     
                     switch self.diaryEditorVM.mode {
                     case .create:
-                        ToastManager.show(.saved)
+                        ToastManager.show(.saved, position: .center)
                     default:
-                        ToastManager.show(.updated)
+                        ToastManager.show(.updated, position: .center)
                     }
                     
                 }

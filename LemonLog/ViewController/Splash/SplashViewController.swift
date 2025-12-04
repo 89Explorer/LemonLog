@@ -11,7 +11,10 @@ final class SplashViewController: UIViewController {
     
     
     // MARK: ✅ ViewModel
-    private let homeVM: HomeViewModel
+//    private let homeVM: HomeViewModel
+    
+    // ▶️ 새롭게 작성한 ViewModel ◀️
+    private let mainHomeVM: MainHomeViewModel
     
     
     // MARK: ✅ View
@@ -19,8 +22,14 @@ final class SplashViewController: UIViewController {
     
     
     // MARK: ✅ UI
-    init(homeViewModel: HomeViewModel) {
-        self.homeVM = homeViewModel
+//    init(homeViewModel: HomeViewModel) {
+//        self.homeVM = homeViewModel
+//        super.init(nibName: nil, bundle: nil)
+//    }
+    
+    // ▶️ 새롭게 작성한 Init ◀️
+    init(mainHomeVM: MainHomeViewModel) {
+        self.mainHomeVM = mainHomeVM
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -67,11 +76,30 @@ final class SplashViewController: UIViewController {
         ])
     }
     
+    
+    
+    // MARK: moveToMain() - 스플래쉬 화면은 닫고, 루트뷰를 MainViewController로 변경
     private func moveToMain() {
-        let homeVC = HomeViewController(viewModel: homeVM)
-        let navVC = UINavigationController(rootViewController: homeVC)
-        navVC.modalTransitionStyle = .crossDissolve
-        navVC.modalPresentationStyle = .fullScreen
-        present(navVC, animated: true)
+//        let mainVC = MainViewController(homeVM: homeVM)
+//        let naviVC = UINavigationController(rootViewController: mainVC)
+//        naviVC.modalPresentationStyle = .fullScreen
+        
+        let newMainVC = MainHomeViewController(viewModel: mainHomeVM)
+        
+        // 현재 윈도우 가져오기 (iOS 13+ 대응)
+        guard let window = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first?.windows.first else { return }
+
+        // ✅ 스플래시 대신 메인 네비게이션 컨트롤러를 루트로 교체
+        window.rootViewController = newMainVC
+
+        // ✅ 자연스러운 전환을 위한 크로스 디졸브 애니메이션
+        UIView.transition(with: window,
+                          duration: 0.4,
+                          options: .transitionCrossDissolve,
+                          animations: nil,
+                          completion: nil)
     }
+
 }

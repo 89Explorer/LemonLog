@@ -62,7 +62,7 @@ final class CustomCalendarViewController: UIViewController {
         self.onSelectDate = onSelectDate
         
         // ✅ 초기 날짜로 바로 앵커 고정
-        self.viewModel = CalendarViewModel(initialDate: initializedDate, mode: mode)
+        //self.viewModel = CalendarViewModel(initialDate: initializedDate, mode: mode)
         super.init(nibName: nil, bundle: nil)
     }
     

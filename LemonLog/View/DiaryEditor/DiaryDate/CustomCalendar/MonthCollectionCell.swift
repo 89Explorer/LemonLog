@@ -161,7 +161,7 @@ extension MonthCollectionCell: UICollectionViewDataSource {
             with: date,
             in: month,
             isSelected: isSelected,
-            calendar: vm
+            calendarVM: vm
         )
         
         return cell
