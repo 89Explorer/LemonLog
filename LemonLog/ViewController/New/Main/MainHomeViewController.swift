@@ -155,13 +155,18 @@ extension MainHomeViewController {
                 cell.configure(quote: text)
                 return cell
                 
-            case .calendar(let date):
+            case .calendar:
                 let cell = collectionView.dequeueReusableCell(
                     withReuseIdentifier: MonthCalendarCell.reuseIdentifier,
                     for: indexPath
                 ) as! MonthCalendarCell
                 
                 cell.configure(with: mainHomeVM.calendarVM)
+                
+                cell.onTappedFullCalendar = {
+                    print("눌림!")
+                }
+                
                 return cell
             }
         }
@@ -182,7 +187,7 @@ extension MainHomeViewController {
         
         // Calendar
         snapshot.appendSections([.calendar])
-        snapshot.appendItems([.calendar(mainHomeVM.calendarVM.currentMonth)], toSection: .calendar)
+        snapshot.appendItems([.calendar], toSection: .calendar)
         
         dataSource.apply(snapshot, animatingDifferences: false)
     }
@@ -315,6 +320,6 @@ extension MainHomeViewController {
     enum MainHomeItem: Hashable {
         case customNavigationBar
         case introInfo(quote: CustomQuote?)
-        case calendar(Date)
+        case calendar
     }
 }

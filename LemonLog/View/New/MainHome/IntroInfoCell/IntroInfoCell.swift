@@ -121,22 +121,32 @@ class IntroInfoCell: UICollectionViewCell {
         quoteLabel.translatesAutoresizingMaskIntoConstraints = false
         startButton.translatesAutoresizingMaskIntoConstraints = false
         
+        let spacer = UIView()
+        spacer.translatesAutoresizingMaskIntoConstraints = false
+        cardView.addSubview(spacer)
+        
         NSLayoutConstraint.activate([
             cardView.topAnchor.constraint(equalTo: contentView.topAnchor),
             cardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0),
             cardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: 0),
             cardView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             
-            greetingLabel.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 20),
+            greetingLabel.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 12),
             greetingLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 20),
             greetingLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -20),
+            greetingLabel.heightAnchor.constraint(equalToConstant: 60),
             
-            //quoteLabel.topAnchor.constraint(equalTo: greetingLabel.bottomAnchor, constant: 8),
+            // spacer
+            spacer.topAnchor.constraint(equalTo: greetingLabel.bottomAnchor, constant: 12),
+            spacer.leadingAnchor.constraint(equalTo: cardView.leadingAnchor),
+            spacer.trailingAnchor.constraint(equalTo: cardView.trailingAnchor),
+            
             quoteLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 16),
             quoteLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -16),
-            quoteLabel.bottomAnchor.constraint(equalTo: startButton.topAnchor, constant: -20),
+            // greetingLabel과 startButton 사이에 위치
+            quoteLabel.centerYAnchor.constraint(equalTo: spacer.centerYAnchor),
             
-            startButton.topAnchor.constraint(equalTo: quoteLabel.bottomAnchor, constant: 20),
+            startButton.topAnchor.constraint(equalTo: spacer.bottomAnchor, constant: 20),
             startButton.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 20),
             startButton.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -20),
             startButton.heightAnchor.constraint(equalToConstant: 40),

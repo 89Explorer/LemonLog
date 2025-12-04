@@ -23,7 +23,6 @@ final class QuoteService: QuoteServiceProviding {
     static let shared = QuoteService()
     private init() { }
     
-    
     // Method
     // Gist로부터 전체 명언을 가져옵니다.
     func fetchAllQuotes() -> AnyPublisher<[CustomQuote], any Error> {

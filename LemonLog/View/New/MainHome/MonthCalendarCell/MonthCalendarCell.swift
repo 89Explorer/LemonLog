@@ -13,6 +13,10 @@ import Combine
 final class MonthCalendarCell: UICollectionViewCell {
     
     
+    // MARK: ✅ Closure
+    var onTappedFullCalendar: (() -> Void)?
+    
+    
     // MARK: ✅ Data Source
     private var dataSource: UICollectionViewDiffableDataSource<MonthCalendarSection,MonthCalendarItem>!
     
@@ -137,12 +141,19 @@ extension MonthCalendarCell {
         let button = UIButton(configuration: configuration, primaryAction: nil)
         button.translatesAutoresizingMaskIntoConstraints = false
         
+        button.addTarget(self, action: #selector(tappedFullCalendarButton), for: .touchUpInside)
+        
         contentView.addSubview(button)
         
         NSLayoutConstraint.activate([
             button.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             button.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24)
         ])
+    }
+    
+    // Action Method - tapped FullCalendarButton 
+    @objc private func tappedFullCalendarButton() {
+        onTappedFullCalendar?()
     }
 }
 
