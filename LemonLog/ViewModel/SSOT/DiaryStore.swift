@@ -13,7 +13,7 @@ import UIKit
 // MARK: - 감정일기 데이터의 전역 상태를 관리하는 ViewModel (Single Source of Truth)
 @MainActor
 final class DiaryStore: DiaryProviding {
-
+    
     
     // MARK: ✅ Singleton
     static let shared = DiaryStore(manager: DiaryCoreDataManager.shared)
@@ -26,7 +26,7 @@ final class DiaryStore: DiaryProviding {
     // MARK: ✅ Subjects
     private let diariesSubject = CurrentValueSubject<[EmotionDiaryModel], Never>([])
     
-
+    
     // MARK: ✅ Publishers (DiaryProviding)
     var diariesPublisher: AnyPublisher<[EmotionDiaryModel], Never> {
         diariesSubject.eraseToAnyPublisher()
@@ -43,19 +43,25 @@ final class DiaryStore: DiaryProviding {
         }
     }
     
-   
+    
     // MARK: ✅ READ
     // 전체 일기 로드 (비동기)
     func reload() async {
-        await Task.detached(priority: .userInitiated) { [weak self] in
-            guard let self else { return }
-            let diaries = await self.manager.fetchDiairesAsync(mode: .all)
-            let sorted = diaries.sorted(by: { $0.createdAt > $1.createdAt })
-            await MainActor.run {
-                self.diariesSubject.send(sorted)
-            }
-        }.value
+        let diaries = await manager.fetchDiairesAsync(mode: .all)
+        let sorted = sort(diaries)
+        diariesSubject.send(sorted)
     }
+    
+//    func reload() async {
+//        await Task.detached(priority: .userInitiated) { [weak self] in
+//            guard let self else { return }
+//            let diaries = await self.manager.fetchDiairesAsync(mode: .all)
+//            let sorted = diaries.sorted(by: { $0.createdAt > $1.createdAt })
+//            await MainActor.run {
+//                self.diariesSubject.send(sorted)
+//            }
+//        }.value
+//    }
     
     func diary(with id: String) -> EmotionDiaryModel? {
         diariesSubject.value.first { $0.id.uuidString == id }
@@ -75,7 +81,7 @@ final class DiaryStore: DiaryProviding {
         let grouped = Dictionary(grouping: weekly, by: { $0.emotion.category })
         return grouped.mapValues { $0.count }
     }
-
+    
     
     func fetchWeeklySummary(for date: Date) -> [DiaryCoreDataManager.Weekday : [EmotionCategory]] {
         manager.fetchWeeklySummary(for: date)
@@ -97,7 +103,7 @@ final class DiaryStore: DiaryProviding {
         if success {
             var newList = diariesSubject.value
             newList.append(diary)
-            diariesSubject.send(newList.sorted { $0.createdAt > $1.createdAt })
+            diariesSubject.send(sort(newList))
         }
         return success
     }
@@ -109,7 +115,7 @@ final class DiaryStore: DiaryProviding {
             var list = diariesSubject.value
             if let index = list.firstIndex(where: { $0.id == diary.id }) {
                 list[index] = diary
-                diariesSubject.send(list.sorted { $0.createdAt > $1.createdAt })
+                diariesSubject.send(sort(list))
             } else {
                 Task { await reload() }
             }
@@ -126,5 +132,11 @@ final class DiaryStore: DiaryProviding {
             diariesSubject.send(list)
         }
         return success
+    }
+    
+    
+    // MARK: ✅ Hepler 메서드
+    private func sort(_ list: [EmotionDiaryModel]) -> [EmotionDiaryModel] {
+        list.sorted { $0.createdAt > $1.createdAt }
     }
 }

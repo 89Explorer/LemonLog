@@ -182,7 +182,7 @@ class WeeklySummaryCell: UICollectionViewCell {
             
             if emotionIndex >= 0 && emotionIndex < top3.count {
                 let emotion = top3[emotionIndex]
-                imageView.image = emotion.emotionImage?.withRenderingMode(.alwaysOriginal)
+                //imageView.image = emotion.emotionImage?.withRenderingMode(.alwaysOriginal)
                 imageView.isHidden = false
             } else {
                 imageView.image = nil

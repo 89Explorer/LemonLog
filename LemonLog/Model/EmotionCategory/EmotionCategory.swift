@@ -11,6 +11,7 @@ import UIKit
 
 // MARK: ✅ enum - 감정 종류를 담은 열거형
 enum EmotionCategory: String, CaseIterable, Codable {
+    case none        // 빈값
     case happiness   // 😀 행복
     case sadness     // 😢 슬픔
     case anger       // 😡 분노
@@ -37,6 +38,16 @@ struct EmotionMetaData {
 extension EmotionCategory {
     var meta: EmotionMetaData {
         switch self {
+            
+        case .none:
+            return EmotionMetaData(
+                emoji: "",
+                displayName: "",
+                score: 0,
+                backgroundColor: UIColor.clear,
+                subEmotions: []
+            )
+            
         case .happiness:
             return EmotionMetaData(
                 emoji: "😀",

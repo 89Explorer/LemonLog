@@ -107,7 +107,7 @@ extension HomeEmotionSummaryViewController: UITableViewDataSource, UITableViewDe
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedItem = diariesFromWeek[indexPath.row]
-        print("selectedItem: \(selectedItem.summaryText)")
+        //print("selectedItem: \(selectedItem.summaryText)")
         
         let detailVC = DetailDiaryViewController(from: selectedItem)
         let naviDetailVC = UINavigationController(rootViewController: detailVC)

@@ -16,210 +16,155 @@ final class DiaryEditorViewModel: ObservableObject {
     
     // MARK: ✅ Dependencies
     private let store: DiaryProviding
-    
-    
-    // MARK: ✅ State
     let mode: DiaryMode
     
     
-    // MARK: ✅ Published Properties (UI에 바인딩)
-    @Published var diary: EmotionDiaryModel
-    @Published var navigationTitle: String = ""
-    @Published var saveButtonTitle: String = ""
-    
-    @Published var validationResult: DiaryValidationResult? = nil    // 유효성 검사 결과를 VC로 전달
-    
-    @Published var saveCompleted: Bool = false    // 유효성 검사 통과 유무 확인
-    
-    @Published var contentSections = ContentSections(
-        situation: "",
-        thought: "",
-        reeval: "",
-        action: ""
-    )
+    // MARK: ✅ UI State
+    @Published var uiState: DiaryEditorUIState
     
     
-    // MARK: ✅ Init
+    // MARK: ✅ Copy diary
+    @Published var editableDiary: EmotionDiaryModel
+    
+    
+    // MARK: ✅ Original diary (원본 파일)
+    private let originalDiary: EmotionDiaryModel?
+    
+    
+    // MARK: ✅ Initialization
     init(mode: DiaryMode, store: DiaryProviding? = nil) {
         self.store = store ?? DiaryStore.shared
         self.mode = mode
         
         switch mode {
-        case .create:
-          diary = EmotionDiaryModel(
-            id: UUID(),
-            emotion: "",
-            content: "",
-            createdAt: Date(),
-            images: []
-          )
-            saveButtonTitle =  NSLocalizedString("save_button_title", comment: "")
-            navigationTitle = NSLocalizedString("diary_editor_title_create", comment: "Navigation title for creating a new diary entry")
-        case .edit(let existing):
-            diary = existing
-            saveButtonTitle = NSLocalizedString("update_button_title", comment: "")
-            navigationTitle = NSLocalizedString("diary_editor_title_edit", comment: "Navigation title for editing an existing diary entry")
             
-            if let data = existing.content.data(using: .utf8),
-               let decoded = try? JSONDecoder().decode(ContentSections.self, from: data) {
-                contentSections = decoded
-            } else {
-                // 예전 버전 호환 (혹은 JSON이 아니면 그냥 내용 전체 넣기)
-                contentSections = ContentSections(
-                    situation: existing.content,
-                    thought: "",
-                    reeval: "",
-                    action: ""
-                )
-            }
-        }
-    }
-}
-
-
-// MARK: ✅ Extension - mode에 따라 저장 로직 분기
-extension DiaryEditorViewModel {
-    
-    func saveDiary() {
-        switch mode {
         case .create:
-            store.save(diary)
-        case .edit:
-            store.update(diary)
+            originalDiary = nil
+            editableDiary = EmotionDiaryModel(
+                id: UUID(),
+                emotion: EmotionSelection(category: .none, subEmotion: []),
+                content: ContentSections(situation: "", thought: "", reeval: "", action: ""),
+                createdAt: Date(),
+                images: []
+            )
+            
+            uiState = DiaryEditorUIState(
+                navigationTitle: NSLocalizedString("diary_editor_title_create", comment: ""),
+                saveButtonTitle: NSLocalizedString("save_button_title", comment: "")
+            )
+            
+        case .edit(let diary):
+            originalDiary = diary
+            editableDiary = diary
+            
+            uiState = DiaryEditorUIState(
+                navigationTitle: NSLocalizedString("diary_editor_title_edit", comment: ""),
+                saveButtonTitle: NSLocalizedString("update_button_title", comment: "")
+            )
         }
-    }
-    
-    func deleteDiary() {
-        store.delete(id: diary.id.uuidString)
     }
 }
 
 
-// MARK: ✅ Extension - 유효성 검사 함수
+// MARK: ✅ Extension (저장 + 유효성 검사 + 삭제)
 extension DiaryEditorViewModel {
-    
-    // 유효성 검사 확인 호출
-    func attemptSaveDiary(
-        situation: String,
-        thought: String,
-        reeval: String,
-        action: String
-    ) {
-        
-        let result = validateDiaryInputs(
-            situation: situation,
-            thought: thought,
-            reeval: reeval,
-            action: action
-        )
-        
-        guard result.isValid else {
-            validationResult = result
+
+    // 유효성 검사 후 저장하는 메서드
+    func trySaveDiary() {
+
+        let validation = validate(editableDiary)
+
+        if !validation.isValid {
+            uiState.validationResult = validation
             return
         }
-        
-        // JSON으로 content 직렬화
-        let content = ContentSections(
-            situation: situation,
-            thought: thought,
-            reeval: reeval,
-            action: action
-        )
-        
-        if let jsonData = try? JSONEncoder().encode(content),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
-            diary.content = jsonString
-        }
-        
-        saveDiary()
-        saveCompleted = true 
 
+        saveEditableDiary()
+        uiState.saveCompleted = true
     }
-    
-    // 일기 작성, 수정 시 입력값 유효성 검사
-    func validateDiaryInputs(
-        situation: String,
-        thought: String,
-        reeval: String,
-        action: String
-    ) -> DiaryValidationResult {
+
+    // 유효성 검사 (content 부분 작성 확인)
+    private func validate(_ diary: EmotionDiaryModel) -> DiaryValidationResult {
 
         var errors: [DiaryValidationError] = []
-        
-        let trimmedEmotion   = diary.emotion.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trimmedSituation = situation.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trimmedThought   = thought.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trimmedReeval    = reeval.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trimmedAction    = action.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        // 1) 감정 선택 여부
-        if trimmedEmotion.isEmpty {
-            errors.append(
-                DiaryValidationError(
-                    field: .emotion,
-                    message: NSLocalizedString(
-                        "validation_error_emotion_required",
-                        comment: "Message shown when emotion is not selected"
-                    )
-                )
-            )
+        if diary.emotion.category == .none {
+            errors.append(.init(field: .emotion,
+                message: NSLocalizedString("validation_error_emotion_required", comment: "")))
         }
 
-        // 2) [상황]
-        if trimmedSituation.isEmpty {
-            errors.append(
-                DiaryValidationError(
-                    field: .situation,
-                    message: NSLocalizedString(
-                        "validation_error_situation_required",
-                        comment: "Message shown when situation is empty"
-                    )
-                )
-            )
+        let content = diary.content
+
+        if content.situation.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            errors.append(.init(field: .situation,
+                message: NSLocalizedString("validation_error_situation_required", comment: "")))
         }
 
-        // 3) [생각 / 원인]
-        if trimmedThought.isEmpty {
-            errors.append(
-                DiaryValidationError(
-                    field: .thought,
-                    message: NSLocalizedString(
-                        "validation_error_thought_required",
-                        comment: "Message shown when thought is empty"
-                    )
-                )
-            )
+        if content.thought.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            errors.append(.init(field: .thought,
+                message: NSLocalizedString("validation_error_thought_required", comment: "")))
         }
 
-        // 4) [새로운 시각 / 반박]
-        if trimmedReeval.isEmpty {
-            errors.append(
-                DiaryValidationError(
-                    field: .reeval,
-                    message: NSLocalizedString(
-                        "validation_error_reeval_required",
-                        comment: "Message shown when reeval is empty"
-                    )
-                )
-            )
+        if content.reeval.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            errors.append(.init(field: .reeval,
+                message: NSLocalizedString("validation_error_reeval_required", comment: "")))
         }
 
-        // 5) [다음 행동]
-        if trimmedAction.isEmpty {
-            errors.append(
-                DiaryValidationError(
-                    field: .action,
-                    message: NSLocalizedString(
-                        "validation_error_action_required",
-                        comment: "Message shown when action is empty"
-                    )
-                )
-            )
+        if content.action.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            errors.append(.init(field: .action,
+                message: NSLocalizedString("validation_error_action_required", comment: "")))
         }
 
         return DiaryValidationResult(errors: errors)
     }
 
+    // 저장 메서드
+    private func saveEditableDiary() {
+        switch mode {
+        case .create:
+            store.save(editableDiary)
+        case .edit:
+            store.update(editableDiary)
+        }
+    }
+
+    // 삭제 메서드
+    func deleteDiary() {
+        if let origin = originalDiary {
+            store.delete(id: origin.id.uuidString)
+        }
+    }
+}
+
+
+// MARK: ✅ Helper Method
+extension DiaryEditorViewModel {
+    
+    // 내용 작성 업데이트 함수
+    func updateContent(_ field: DiaryField, text: String) {
+        switch field {
+        case .situation: editableDiary.content.situation = text
+        case .thought: editableDiary.content.thought = text
+        case .reeval: editableDiary.content.reeval = text
+        case .action: editableDiary.content.action = text
+        default: break
+        }
+    }
+
+    // 감정 선택 업데이트 함수
+    func updateEmotion(_ emotion: EmotionSelection) {
+        editableDiary.emotion = emotion
+    }
+
+}
+
+
+// MARK: ✅ Struct (화면용 UI 상태 + 저장용 상태를 담는 구조체)
+struct DiaryEditorUIState {
+    var navigationTitle: String
+    var saveButtonTitle: String
+    var saveCompleted: Bool = false
+    var validationResult: DiaryValidationResult? = nil
 }
 
 

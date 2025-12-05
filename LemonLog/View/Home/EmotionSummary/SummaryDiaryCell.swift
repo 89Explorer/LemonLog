@@ -171,8 +171,8 @@ final class SummaryDiaryCell: UITableViewCell {
     
     
     private func emotionToUI(_ diary: EmotionDiaryModel) {
-        situationLabel.text = diary.summaryText
-        emojiImageView.image = UIImage(named: diary.emotion)
+        //situationLabel.text = diary.summaryText
+        //emojiImageView.image = UIImage(named: diary.emotion)
     }
     
     
