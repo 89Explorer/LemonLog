@@ -13,7 +13,7 @@ import UIKit
 // MARK: - 감정일기 데이터의 전역 상태를 관리하는 ViewModel (Single Source of Truth)
 @MainActor
 final class DiaryStore: DiaryProviding {
-    
+
     
     // MARK: ✅ Singleton
     static let shared = DiaryStore(manager: DiaryCoreDataManager.shared)
@@ -72,7 +72,8 @@ final class DiaryStore: DiaryProviding {
     
     func countByEmotion(inWeekOf date: Date) -> [EmotionCategory : Int] {
         let weekly = diaries(inWeekOf: date)
-        return Dictionary(grouping: weekly) { EmotionCategory(rawValue: $0.emotion)! }.mapValues(\.count)
+        let grouped = Dictionary(grouping: weekly, by: { $0.emotion.category })
+        return grouped.mapValues { $0.count }
     }
 
     

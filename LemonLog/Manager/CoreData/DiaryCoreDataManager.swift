@@ -59,6 +59,43 @@ final class DiaryCoreDataManager {
     
 }
 
+// MARK: ✅ Extension (encode & decode 메서드)
+extension DiaryCoreDataManager {
+    
+    // EmotionSelection → JSON String 변환
+    private func encodeEmotionSelection(_ emotion: EmotionSelection) -> String {
+        let encoder = JSONEncoder()
+        if let data = try? encoder.encode(emotion),
+           let jsonString = String(data: data, encoding: .utf8) {
+            return jsonString
+        }
+        return ""
+    }
+    
+    // ContentSections → JSON String 변환
+    private func encodeContent(_ content: ContentSections) -> String {
+        let encoder = JSONEncoder()
+        if let data = try? encoder.encode(content),
+           let jsonString = String(data: data, encoding: .utf8) {
+            return jsonString
+        }
+        return ""
+    }
+    
+    // String -> EmotionSelection 변환
+    private func decodeEmotionSelection(_ jsonString: String) -> EmotionSelection? {
+        guard let data = jsonString.data(using: .utf8) else { return nil }
+        return try? JSONDecoder().decode(EmotionSelection.self, from: data)
+    }
+
+    // String -> ContentSections 변환
+    private func decodeContent(_ jsonString: String) -> ContentSections? {
+        guard let data = jsonString.data(using: .utf8) else { return nil }
+        return try? JSONDecoder().decode(ContentSections.self, from: data)
+    }
+
+}
+
 
 // MARK: - CRUD for EmotionDiaryEntity
 extension DiaryCoreDataManager {
@@ -69,8 +106,8 @@ extension DiaryCoreDataManager {
     func saveDiary(_ model: EmotionDiaryModel) -> Bool {
         let diary = EmotionDiaryEntity(context: context)
         diary.id = model.id.uuidString
-        diary.emotion = model.emotion
-        diary.content = model.content
+        diary.emotion = encodeEmotionSelection(model.emotion)
+        diary.content = encodeContent(model.content)
         diary.createdAt = model.createdAt
         
         // 이미지 저장
@@ -241,8 +278,8 @@ extension DiaryCoreDataManager {
             return false
         }
         
-        diary.emotion = model.emotion
-        diary.content = model.content
+        diary.emotion = encodeEmotionSelection(model.emotion)
+        diary.content = encodeContent(model.content)
         diary.createdAt = model.createdAt
         
         // 이미지 저장 관리
@@ -380,27 +417,31 @@ extension DiaryCoreDataManager {
     // MARK: ✅ 요일 별 감정 데이터 가져오기 (요일 - 감정)
     func fetchWeeklySummary(for date: Date = Date()) -> [Weekday: [EmotionCategory]] {
         let calendar = Calendar.current
-        
-        // 이번 주의 시작(월요일)과 끝(일요일) 날짜 계산
+
+        // 주간 범위 계산
         guard let weekInterval = calendar.dateInterval(of: .weekOfYear, for: date) else { return [:] }
         let startOfWeek = weekInterval.start
         let endOfWeek = calendar.date(byAdding: .day, value: 6, to: startOfWeek)!
-        
-        // fetchRequest 생성
+
+        // 1) 엔티티 fetch
         let request = makeBaseFetchRequest()
-        request.predicate = NSPredicate(format: "createdAt >= %@ AND createdAt <= %@", startOfWeek as NSDate, endOfWeek as NSDate)
-        
-        // fetch
-        let diaries = performFetch(request)
-        
-        // 요일별 그룹화
-        var weeklySummary: [Weekday: [EmotionCategory]] = [:]
-        
-        for diary in diaries {
-            let createdDate = diary.createdAt
-            let weekdayIndex = calendar.component(.weekday, from: createdDate)
-            
-            // Swift Calendar에서 weekday는 1=일요일, 2=월요일... 7=토요일
+        request.predicate = NSPredicate(
+            format: "createdAt >= %@ AND createdAt <= %@",
+            startOfWeek as NSDate, endOfWeek as NSDate
+        )
+
+        let entities = performFetch(request)
+
+        // 2) 엔티티 → 모델 변환
+        //let diaries: [EmotionDiaryModel] = entities.compactMap { $0.toModel() }
+
+        // 3) 요일별 감정 그룹화
+        var summary: [Weekday: [EmotionCategory]] = [:]
+
+        for diary in entities {
+
+            let weekdayIndex = calendar.component(.weekday, from: diary.createdAt)
+
             let weekday: Weekday
             switch weekdayIndex {
             case 1: weekday = .sun
@@ -412,16 +453,13 @@ extension DiaryCoreDataManager {
             case 7: weekday = .sat
             default: continue
             }
-            
-            // EmotionCategroy 변환
-            if let category = EmotionCategory(rawValue: diary.emotion) {
-                weeklySummary[weekday, default: []].append(category)
-            }
+
+            summary[weekday, default: []].append(diary.emotion.category)
         }
-        
-        return weeklySummary
+
+        return summary
     }
-    
+
 }
 
 

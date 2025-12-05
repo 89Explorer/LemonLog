@@ -53,14 +53,35 @@ extension EmotionDiaryEntity {
         guard
             let idString = id,
             let uuid = UUID(uuidString: idString),
-            let emotion = self.emotion,
-            let content = self.content,
+            let emotionString = self.emotion,
+            let contentString = self.content,
             let createdAt = self.createdAt
         else {
             LogManager.print(.error, "toModel 변환 실패: 필수 값 누락")
             return nil
         }
         
+        // EmotionSelectiong 디코딩
+        let emotion: EmotionSelection
+        if let data = emotionString.data(using: .utf8),
+           let decodedEmotion = try? JSONDecoder().decode(EmotionSelection.self, from: data) {
+            emotion = decodedEmotion
+        } else {
+            LogManager.print(.error, "EmotionSelection JSON 디코딩 실패")
+            return nil
+        }
+        
+        // ContentSections 디코딩
+        let content: ContentSections
+        if let data = contentString.data(using: .utf8),
+           let decodedContent = try? JSONDecoder().decode(ContentSections.self, from: data) {
+            content = decodedContent
+        } else {
+            LogManager.print(.error, "ContentSections JSON 디코딩 실패")
+            return nil
+        }
+        
+        // 이미지 디코딩
         var loadedImages: [UIImage] = []
         
         if let imageEntities = images as? Set<DiaryImageEntity> {
@@ -78,8 +99,8 @@ extension EmotionDiaryEntity {
         
         return EmotionDiaryModel(
             id: uuid,
-            emotion: emotion,
-            content: content,
+            emotion: emotion,      // 구조체로 전달
+            content: content,      // 구조체로 전달
             createdAt: createdAt,
             images: loadedImages.isEmpty ? nil : loadedImages
         )

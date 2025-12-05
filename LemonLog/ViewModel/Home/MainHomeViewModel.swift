@@ -10,6 +10,7 @@ import Combine
 import UIKit
 
 
+@MainActor
 final class MainHomeViewModel: ObservableObject {
     
     
@@ -25,18 +26,52 @@ final class MainHomeViewModel: ObservableObject {
     
     // MARK: ✅ Private Properties (데이터 캐싱 및 Combine 관리)
     private var cancellables = Set<AnyCancellable>()  // Combine 구독 관리
+    private var totalDiaries: [EmotionDiaryModel] = []
+    
+    // MARK: ✅ Store
+    private let store: DiaryProviding
     
     
     // MARK: ✅ Initialization
     init(
         quoteViewModel: QuoteViewModel = QuoteViewModel(),
-        calendarViewModel: CalendarViewModel = CalendarViewModel()
+        calendarViewModel: CalendarViewModel = CalendarViewModel(),
+        store: DiaryProviding? = nil
     ) {
         self.quoteVM = quoteViewModel
         self.calendarVM = calendarViewModel
-        
+        self.store = store ?? DiaryStore.shared
         // 초기화 시 명언 데이터를 로드합니다.
         quoteVM.loadQuotes()
+        observeStore()
+    }
+    
+    
+    // MARK: ✅ ObserveStore
+    private func observeStore() {
+        store.diariesPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] diaries in
+                guard let self else { return }
+
+                self.handleDiaryUpdate(diaries)
+            }
+            .store(in: &cancellables)
+    }
+    
+    
+    // MARK: ✅ HandleDiaryupdate
+    private func handleDiaryUpdate(_ diaries: [EmotionDiaryModel]) {
+        self.totalDiaries = diaries
+        updateCalendarDiaryDates(from: diaries)
+    }
+    
+    
+    // MARK: ✅ UpdateCalendarDiaryDates
+    // 전체 감정일기 배열 -> 일기가 있는 날짜 Set으로 변환해서 달력에 전달하는 함수
+    private func updateCalendarDiaryDates(from diaries: [EmotionDiaryModel]) {
+        let dates = diaries.map { $0.createdAt.stripped() }
+        calendarVM.updateDiaryDates(Set(dates))
     }
     
     
@@ -47,4 +82,5 @@ final class MainHomeViewModel: ObservableObject {
     }
     
 }
+
 

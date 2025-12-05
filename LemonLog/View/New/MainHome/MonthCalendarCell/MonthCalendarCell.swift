@@ -231,15 +231,15 @@ extension MonthCalendarCell {
                     let text = date.map { "\(self.calendarVM.calendar.component(.day, from: $0))" } ?? ""
                     
                     // 오늘인지 체크
-                    let isToday = date.map { self.calendarVM.isToday($0) } ?? false
+                    let isToday = date.map { calendarVM.isToday($0) } ?? false
                     
                     // 감정일기 있는 날짜인지? (이전 단계에서 diaryDates 받아옴)
-                    //let hasDiary = date.map { self?.calendarVM.diaryDates.contains($0.stripped()) } ?? false
+                    let hasDiary = date.map { calendarVM.hasDiary(on: $0) } ?? false
                     
                     let state = CalendarItemState(
                         section: .day,
                         isToday: isToday,
-                        hasDiary: false
+                        hasDiary: hasDiary
                     )
                     
                     cell.configure(text: text, state: state)

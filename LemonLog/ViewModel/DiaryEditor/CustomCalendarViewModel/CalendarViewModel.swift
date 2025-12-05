@@ -25,6 +25,9 @@ final class CalendarViewModel: ObservableObject {
     @Published private(set) var currentMonth: Date      // 현재 월
     //@Published private(set) var mode: CalendarMode    //  표시 모드
   
+    // 감정일기를 작성한 날짜 담는 프로퍼티
+    @Published private(set) var diaryDates: Set<Date> = []
+    
     let calendar: Calendar
     private var cancellables = Set<AnyCancellable>()
     
@@ -184,5 +187,19 @@ extension CalendarViewModel {
         // firstWeekday 기반 Index 조정
         let index = (weekday - calendar.firstWeekday + 7) % 7
         return index
+    }
+}
+
+
+// MARK: ✅ Extension (감정일기를 포함한 날짜를 확인하기 위함)
+extension CalendarViewModel {
+    
+    func updateDiaryDates(_ dates: Set<Date>) {
+        self.diaryDates = dates
+    }
+    
+    /// CalendarItemCell에서 사용:
+    func hasDiary(on date: Date) -> Bool {
+        diaryDates.contains(date.stripped())
     }
 }

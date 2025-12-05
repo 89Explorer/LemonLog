@@ -177,8 +177,8 @@ extension CalendarItemCell {
                 //contentView.backgroundColor = UIColor.softMint.withAlphaComponent(0.4)
             }
             
-            //diaryDotView.isHidden = !state.hasDiary
-            diaryDotView.isHidden = false
+            diaryDotView.isHidden = !state.hasDiary
+            //diaryDotView.isHidden = false
             
             NSLayoutConstraint.activate(centerConstraints)
         }

@@ -127,7 +127,7 @@ extension MainHomeViewController {
             collectionView: mainCollectionView
         ) { [self] collectionView, indexPath, itemIdentifier in
             
-            guard self != nil else { return UICollectionViewCell() }
+            //guard self != nil else { return UICollectionViewCell() }
             
             switch itemIdentifier {
             case .customNavigationBar:
@@ -153,6 +153,17 @@ extension MainHomeViewController {
                 
                 let text = quote?.text ?? ""
                 cell.configure(quote: text)
+                
+                cell.onTapStartDiary = {
+                    
+                    let diaryEditorVC = DiaryEditorViewController(mode: .create)
+                    let naviToDiaryEditorVC = UINavigationController(rootViewController: diaryEditorVC)
+                    naviToDiaryEditorVC.modalPresentationStyle = .fullScreen
+                    naviToDiaryEditorVC.modalTransitionStyle = .coverVertical
+                    present(naviToDiaryEditorVC, animated: true)
+                    
+                }
+                
                 return cell
                 
             case .calendar:

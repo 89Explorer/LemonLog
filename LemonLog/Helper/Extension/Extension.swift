@@ -67,6 +67,11 @@ extension Date {
         formatter.timeStyle = timeStyle
         return formatter.string(from: self)
     }
+    
+    // 2025-02-15 13:22:14 ----> (stripped) 2025-02-15 00:00:00
+    func stripped() -> Date {
+        Calendar.current.startOfDay(for: self)
+    }
 }
 
 
@@ -171,6 +176,15 @@ extension Calendar {
         let comps = dateComponents([.year, .month], from: day)
         return self.date(from: comps)!   // ← self.date 로 명확히
     }
+    
+    func isSameDay(_ a: Date, _ b: Date) -> Bool {
+        isDate(a, inSameDayAs: b)
+    }
+
+    func isSameMonth(_ a: Date, _ b: Date) -> Bool {
+        isDate(a, equalTo: b, toGranularity: .month)
+    }
+    
 }
 
 
@@ -201,16 +215,3 @@ final class TopAlignedLabel: UILabel {
         super.drawText(in: newRect)
     }
 }
-
-
-// MARK: ✅ Extension (Calendar)
-extension Calendar {
-    func isSameDay(_ a: Date, _ b: Date) -> Bool {
-        isDate(a, inSameDayAs: b)
-    }
-
-    func isSameMonth(_ a: Date, _ b: Date) -> Bool {
-        isDate(a, equalTo: b, toGranularity: .month)
-    }
-}
-
