@@ -98,7 +98,7 @@ class DiarySummaryCell: UICollectionViewCell {
         let convertDate = dateFormatter.string(from: data.createdAt)
         dayLabel.text = convertDate
         
-        emotionImage.image = UIImage(named: data.emotion)
+        //emotionImage.image = UIImage(named: data.emotion)
         diaryLabel.text = summary
         
     }

@@ -53,7 +53,7 @@ extension EmotionCategory {
                 emoji: "😀",
                 displayName: "행복",
                 score: 3,
-                backgroundColor: UIColor.systemYellow.withAlphaComponent(0.25),
+                backgroundColor: UIColor.systemYellow.withAlphaComponent(0.65),
                 subEmotions: [
                     "# 너무 좋아요",
                     "# 가슴이 설레요",
@@ -69,7 +69,7 @@ extension EmotionCategory {
                 emoji: "😢",
                 displayName: "슬픔",
                 score: -2,
-                backgroundColor: UIColor.systemBlue.withAlphaComponent(0.25),
+                backgroundColor: UIColor.systemBlue.withAlphaComponent(0.65),
                 subEmotions: [
                     "# 마음이 아파요",
                     "# 왠지 모르게 외로워요",
@@ -85,13 +85,14 @@ extension EmotionCategory {
                 emoji: "😡",
                 displayName: "분노",
                 score: -3,
-                backgroundColor: UIColor.systemRed.withAlphaComponent(0.25),
+                backgroundColor: UIColor.systemRed.withAlphaComponent(0.65),
                 subEmotions: [
                     "# 너무 화가 나요",
                     "# 괜히 짜증나요",
                     "# 영 불쾌해요",
                     "# 억울해서 못 참겠어요",
-                    "# 속이 터질 것 같아요"
+                    "# 속이 터질 것 같아요",
+                    "# 답답해서 미치겠어요"
                 ]
             )
             
@@ -100,7 +101,7 @@ extension EmotionCategory {
                 emoji: "😨",
                 displayName: "불안",
                 score: -2,
-                backgroundColor: UIColor.systemIndigo.withAlphaComponent(0.25),
+                backgroundColor: UIColor.systemIndigo.withAlphaComponent(0.65),
                 subEmotions: [
                     "# 걱정이 많아요",
                     "# 긴장돼서 떨려요",
@@ -116,13 +117,14 @@ extension EmotionCategory {
                 emoji: "😌",
                 displayName: "평온",
                 score: 1,
-                backgroundColor: UIColor.systemTeal.withAlphaComponent(0.25),
+                backgroundColor: UIColor.systemTeal.withAlphaComponent(0.65),
                 subEmotions: [
                     "# 차분하고 조용해요",
                     "# 마음이 평화로워요",
                     "# 편안하고 나른해요",
                     "# 생각이 없어요",
-                    "# 그냥 덤덤해요"
+                    "# 그냥 덤덤해요",
+                    "# 기분이 좋아요"
                 ]
             )
             
@@ -131,13 +133,14 @@ extension EmotionCategory {
                 emoji: "😲",
                 displayName: "놀람",
                 score: 0,
-                backgroundColor: UIColor.systemGreen.withAlphaComponent(0.25),
+                backgroundColor: UIColor.systemGreen.withAlphaComponent(0.65),
                 subEmotions: [
                     "# 깜짝 놀랐어요",
                     "# 정말 대단해요",
                     "# 가슴이 벅차요",
                     "# 믿기지 않아요",
-                    "# 흥미진진해요"
+                    "# 흥미진진해요",
+                    "# 정신이 없어요"
                 ]
             )
             
@@ -146,12 +149,14 @@ extension EmotionCategory {
                 emoji: "🥰",
                 displayName: "사랑",
                 score: 2,
-                backgroundColor: UIColor.systemPink.withAlphaComponent(0.25),
+                backgroundColor: UIColor.systemPink.withAlphaComponent(0.65),
                 subEmotions: [
                     "# 너무 애틋해요",
                     "# 따뜻하고 다정해요",
                     "# 감동받았어요",
-                    "# 가깝게 느껴져요"
+                    "# 가깝게 느껴져요",
+                    "# 소중한 기분이에요",
+                    "# 보고만 있어도 좋아요"
                 ]
             )
             
@@ -160,12 +165,14 @@ extension EmotionCategory {
                 emoji: "🫣",
                 displayName: "수치심",
                 score: -2,
-                backgroundColor: UIColor.systemGray.withAlphaComponent(0.25),
+                backgroundColor: UIColor.systemGray.withAlphaComponent(0.65),
                 subEmotions: [
                     "# 창피해서 숨고 싶어요",
                     "# 너무 부끄러워요",
-                    "# 내가 잘못한 것 같아요",
-                    "# 민망해 죽겠어요"
+                    "# 잘못한 것 같아요",
+                    "# 민망해 죽겠어요",
+                    "# 다신 그러지 말아야지",
+                    "# 얼굴이 화끈거려요"
                 ]
             )
             
@@ -174,95 +181,16 @@ extension EmotionCategory {
                 emoji: "😴",
                 displayName: "피로",
                 score: -1,
-                backgroundColor: UIColor.systemGray2.withAlphaComponent(0.25),
+                backgroundColor: UIColor.systemGray2.withAlphaComponent(0.65),
                 subEmotions: [
                     "# 너무 지쳤어요",
                     "# 눈이 감겨요",
                     "# 아무것도 하기 싫어요",
                     "# 힘이 없어요",
-                    "# 몸이 나른하고 무기력해요"
+                    "# 나른하고 무기력해요",
+                    "# 입맛도 없어요"
                 ]
             )
         }
     }
 }
-
-
-//enum EmotionCategory: String, CaseIterable {
-//    
-//    case _0 = "0"
-//    case _1 = "1"
-//    case _2 = "2"
-//    case _3 = "3"
-//    case _4 = "4"
-//    case _5 = "5"
-//    case _6 = "6"
-//    case _7 = "7"
-//    case _8 = "8"
-//    case _9 = "9"
-//    case _10 = "10"
-//    case _11 = "11"
-//    case _12 = "12"
-//    case _13 = "13"
-//    case _14 = "14"
-//    case _15 = "15"
-//    case _16 = "16"
-//    case _17 = "17"
-//    case _18 = "18"
-//    case _19 = "19"
-//    case _20 = "20"
-//    case _21 = "21"
-//    case _22 = "22"
-//    case _23 = "23"
-//    case _24 = "24"
-//    
-//    // 이미지 이름과 rawValue 통일 -> 중복 switch 제거
-//    var emotionImage: UIImage? {
-//        return UIImage(named: "\(rawValue)")
-//    }
-//    
-//}
-
-//enum EmotionCategory: String, CaseIterable {
-//    
-//    case angry_grade_1
-//    case angry_grade_2
-//    case angry_grade_3
-//    
-//    case coffee_grade_1
-//    
-//    case happy_grade_1
-//    case happy_grade_2
-//    case happy_Grade_3
-//    
-//    case hungry_grade_1
-//    case hungry_grade_2
-//    case hungry_grade_3
-//    
-//    case love_grade_1
-//    case love_grade_2
-//    case love_grade_3
-//    
-//    case mask_grade_1
-//    
-//    case ridiculous_grade_1
-//    case ridiculous_grade_2
-//    case ridiculous_grade_3
-//    
-//    case sad_grade_1
-//    case sad_grade_2
-//    case sad_grade_3
-//    
-//    case sleepy_grade_1
-//    case sleepy_grade_2
-//    case sleepy_grade_3
-//    
-//    case sweat_grade_1
-//    
-//    // 이미지 이름과 rawValue 통일 -> 중복 switch 제거
-//    var emotionImage: UIImage? {
-//        return UIImage(named: "lemon_\(rawValue)")
-//    }
-//    
-//}
-

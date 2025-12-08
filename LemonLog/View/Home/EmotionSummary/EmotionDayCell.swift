@@ -80,7 +80,7 @@ class EmotionDayCell: UICollectionViewCell {
         baseMonth: Date
     ) {
         dayLabel.text = dayText
-        emotionView.image = emotion?.emotionImage?.withRenderingMode(.alwaysOriginal)
+        //emotionView.image = emotion?.emotionImage?.withRenderingMode(.alwaysOriginal)
 
         let cal = Calendar.current
 

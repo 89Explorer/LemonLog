@@ -93,7 +93,7 @@ final class EmotionCell: UICollectionViewCell {
     
     // MARK: ✅ Configure Data
     func configure(with emotion: EmotionCategory) {
-        emotionImageView.image = emotion.emotionImage
+        //emotionImageView.image = emotion.emotionImage
         updateUI()
     }
     

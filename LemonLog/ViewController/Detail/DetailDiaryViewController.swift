@@ -54,8 +54,8 @@ final class DetailDiaryViewController: UIViewController {
     // MARK: ✅ Bind Data
     func configure(with diary: EmotionDiaryModel) {
         configureDate(diary.createdAt)
-        contentLabel.text = diary.totalText
-        emojiImageView.image = UIImage(named: diary.emotion)
+        //contentLabel.text = diary.totalText
+        //emojiImageView.image = UIImage(named: diary.emotion)
         configureImages(diary.images ?? [])
         updateImagesConstraints()
     }
@@ -388,22 +388,22 @@ extension DetailDiaryViewController {
     }
     
     private func handleEdit() {
-        let selectedDiary = diary
-        let editVC = DiaryEditorViewController(mode: .edit(selectedDiary))
-        let nav = UINavigationController(rootViewController: editVC)
-        nav.modalPresentationStyle = .fullScreen
-        nav.modalTransitionStyle = .coverVertical
-        
-        // 상위 presentingViewController를 가져옴
-        guard let presenter = self.presentingViewController else {
-            return
-        }
-        
-        // 1) DetailDiaryVC dismiss
-        self.dismiss(animated: false) {
-            // 2) DetailDiaryVC를 띄운 쪽에서 present
-            presenter.present(nav, animated: true)
-        }
+//        let selectedDiary = diary
+//        let editVC = DiaryEditorViewController(mode: .edit(selectedDiary))
+//        let nav = UINavigationController(rootViewController: editVC)
+//        nav.modalPresentationStyle = .fullScreen
+//        nav.modalTransitionStyle = .coverVertical
+//        
+//        // 상위 presentingViewController를 가져옴
+//        guard let presenter = self.presentingViewController else {
+//            return
+//        }
+//        
+//        // 1) DetailDiaryVC dismiss
+//        self.dismiss(animated: false) {
+//            // 2) DetailDiaryVC를 띄운 쪽에서 present
+//            presenter.present(nav, animated: true)
+//        }
     
     }
 

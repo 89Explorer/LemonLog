@@ -382,7 +382,7 @@ extension MainDiaryListCell {
         df.dateFormat = "E요일"
         weekLabel.text = df.string(from: diary.createdAt)
         
-        emojiImageView.image = UIImage(named: diary.emotion)
+        //emojiImageView.image = UIImage(named: diary.emotion.)
         
         
         // 이미지 처리
@@ -401,7 +401,7 @@ extension MainDiaryListCell {
         
         
         // 내용
-        diaryContentTextView.text = diary.totalText
+        //diaryContentTextView.text = diary.totalText
     }
     
     func configurePlaceholder() {

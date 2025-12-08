@@ -155,13 +155,10 @@ extension MainHomeViewController {
                 cell.configure(quote: text)
                 
                 cell.onTapStartDiary = {
-                    
-                    let diaryEditorVC = DiaryEditorViewController(mode: .create)
-                    let naviToDiaryEditorVC = UINavigationController(rootViewController: diaryEditorVC)
-                    naviToDiaryEditorVC.modalPresentationStyle = .fullScreen
-                    naviToDiaryEditorVC.modalTransitionStyle = .coverVertical
-                    present(naviToDiaryEditorVC, animated: true)
-                    
+                    let vc = DiaryWriteViewController(diaryWriteVM: .init(mode: .create))
+                    let nav = UINavigationController(rootViewController: vc)
+                    nav.modalPresentationStyle = .fullScreen
+                    self.present(nav, animated: true)
                 }
                 
                 return cell
