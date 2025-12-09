@@ -97,13 +97,16 @@
 "update_button_title" = "수정하기";
 
 
-/* DiaryEditorViewwModel - 유효성 검사 안내 멘트 */
+/* DiaryWriteViewModel - 유효성 검사 안내 멘트 */
 "validation_error_emotion_required" = "오늘 느낀 감정을 선택해 주세요.";
 "validation_error_situation_required" = "상황을 입력해 주세요.";
 "validation_error_thought_required" = "생각 / 원인을 입력해 주세요.";
 "validation_error_reeval_required" = "새로운 시각 / 반박을 입력해 주세요.";
 "validation_error_action_required" = "다음 행동을 입력해 주세요.";
 
+"max_selection_limit" = "최대 3개까지만 선택할 수 있어요!";
+"category_mismatch_error" = "다른 카테고리 감정은 함께 선택할 수 없어요!";
+"minimum_selection_required" = "최소한 1개의 감정을 선택해주세요!";
 
 /* EmotionSummaryHeaderViewModel */
 "week_suffix" = "주차";

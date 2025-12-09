@@ -55,7 +55,6 @@ final class DiaryWriteViewController: UIViewController {
         setupLayout()
         setupPagingControlCallbacks()
         updateUIForStep(index: 0)
-        
         bindingsVM()
     }
     
@@ -67,7 +66,7 @@ final class DiaryWriteViewController: UIViewController {
         diaryWriteVM.$errorMessage
             .compactMap { $0 }
             .sink { [weak self] message in
-                self?.showAlert(message)
+                self?.showAlert(message: message)
             }
             .store(in: &cancellables)
         
@@ -78,12 +77,6 @@ final class DiaryWriteViewController: UIViewController {
             .store(in: &cancellables)
     }
     
-    
-    func showAlert(_ message: String) {
-        let alert = UIAlertController(title: "⚠️ 알림", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "확인", style: .default))
-        present(alert, animated: true)
-    }
     
     private func updateEmotionSelectionEnabled(_ allowed: Bool) {
         // 첫 번째 스텝(감정 선택) 페이지가 화면에 있을 때만 반영
@@ -117,7 +110,8 @@ private extension DiaryWriteViewController {
 
         writeCollectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "cell")
         writeCollectionView.register(EmotionStepCell.self, forCellWithReuseIdentifier: EmotionStepCell.reuseIdentifier)
-
+        writeCollectionView.register(DiaryWriteContentCell.self, forCellWithReuseIdentifier: DiaryWriteContentCell.reuseIdentifier)
+        
         writeCollectionView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(writeCollectionView)
     }
@@ -178,7 +172,7 @@ private extension DiaryWriteViewController {
             let currentStep = self.steps[self.currentStepIndex]
             
             // 먼저 현재 단계에서 다음 단계로 넘어갈 수 있는지를 ViewModel에 검토 요청
-            let allowed = self.diaryWriteVM.canProceedToNextStep(currentStep: currentStep)
+            let allowed = self.diaryWriteVM.canProceedToNextStep(currentStep)
             
             guard allowed else {
                 return
@@ -196,25 +190,32 @@ private extension DiaryWriteViewController {
     }
 }
 
-// 스와이프 시 index 업데이트
+// MARK: ✅ Extension (스와이프 시 index 업데이트)
 extension DiaryWriteViewController: UIScrollViewDelegate {
 
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        updateIndexFromScroll(scrollView)
-    }
-
-    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        updateIndexFromScroll(scrollView)
-    }
-
-    private func updateIndexFromScroll(_ scrollView: UIScrollView) {
+    func scrollViewWillEndDragging(
+        _ scrollView: UIScrollView,
+        withVelocity velocity: CGPoint,
+        targetContentOffset: UnsafeMutablePointer<CGPoint>
+    ) {
         let pageWidth = scrollView.frame.width
-        let page = Int((scrollView.contentOffset.x + pageWidth / 2) / pageWidth)
-        currentStepIndex = page
+        let currentPage = Int(scrollView.contentOffset.x / pageWidth)
+        let targetPage = Int(targetContentOffset.pointee.x / pageWidth)
+
+        // → 방향으로 스와이프
+        if targetPage > currentPage {
+            let currentStep = steps[currentPage]
+            if !diaryWriteVM.canProceedToNextStep(currentStep){
+                targetContentOffset.pointee.x = CGFloat(currentPage) * pageWidth
+                //showStepError(step: currentStep)
+            }
+        }
     }
+
 }
 
-// 컬렉션뷰 기본 콘텐츠 설정 (배경색으로 테스트)
+
+// MARK: ✅ Extension (컬렉션뷰 기본 콘텐츠 설정 (배경색으로 테스트))
 extension DiaryWriteViewController: UICollectionViewDataSource {
 
     func collectionView(_ collectionView: UICollectionView,
@@ -228,6 +229,8 @@ extension DiaryWriteViewController: UICollectionViewDataSource {
         let step = steps[indexPath.item]
         let title = steps[indexPath.item].titleKey
         let guide = steps[indexPath.item].guideKey
+        let placeholder1 = steps[indexPath.item].placeholder1Key
+        let placeholder2 = steps[indexPath.item].placeholder2Key
         
         switch step {
         case .emotion:
@@ -257,7 +260,22 @@ extension DiaryWriteViewController: UICollectionViewDataSource {
             }
             
             return cell
+        case .situation :
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DiaryWriteContentCell.reuseIdentifier, for: indexPath) as! DiaryWriteContentCell
+            cell.configure(
+                titleKey: title,
+                guideKey: guide,
+                placeholderKey1: placeholder1,
+                placeholderKey2: placeholder2,
+                text: ""
+            )
             
+            cell.textChanged = { [weak self] situation in
+                print("상황: \(situation)")
+            }
+            
+            return cell
+        
         default:
             // 나머지 셀은 컬러 테스트용 셀
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath)
@@ -274,7 +292,8 @@ extension DiaryWriteViewController: UICollectionViewDataSource {
     }
 }
 
-// 레이아웃 사이즈 지정
+
+// MARK: ✅ Extension (레이아웃 사이즈 지정)
 extension DiaryWriteViewController: UICollectionViewDelegateFlowLayout {
 
     func collectionView(_ collectionView: UICollectionView,
@@ -284,13 +303,15 @@ extension DiaryWriteViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
-// UI 갱신 (ProgressView + PagingControlView update)
-private extension DiaryWriteViewController {
+
+// MARK: ✅ Extension (UI 갱신 (ProgressView + PagingControlView update))
+extension DiaryWriteViewController {
 
     func updateUIForStep(index: Int) {
         stepProgressView.update(current: index)
         pagingControlView.current = index
     }
+    
 }
 
 

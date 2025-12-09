@@ -165,6 +165,17 @@ extension UIViewController {
             dim.removeFromSuperview()
         }
     }
+    
+    // showAlert과 같은 공통 UI 기능을 어디서든 호출할 수 있도록 하려면,
+    // 해당 기능을 UIViewController의 확장(Extension) 또는 별도의 유틸리티 클래스로 분리해야 합니다.
+    func showAlert(title: String = "⚠️알림", message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        
+        // Alert을 호출하는 UIViewController 인스턴스가 직접 Present합니다.
+        self.present(alert, animated: true)
+    }
+    
 }
 
 

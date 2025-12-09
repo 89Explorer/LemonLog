@@ -4,6 +4,7 @@
 //
 //  Created by 권정근 on 12/7/25.
 //
+// ▶️ 이 셀은 감정 선택 UI의 중심역할을 수행하는 View이며, 실제 “검증”은 ViewModel이 담당하고 UI 업데이트는 이 셀이 담당하는 구조 ◀️
 
 
 import UIKit
@@ -23,18 +24,18 @@ final class EmotionStepCell: UICollectionViewCell {
     
     
     // MARK: ✅ Data
-    private var categories: [EmotionCategory] = []
-    private var expandedCategory: EmotionCategory?
-    private var selectedSubEmotions: [EmotionCategory: Set<String>] = [:]
+    private var categories: [EmotionCategory] = []                         // 감정 카테고리 목록
+    private var expandedCategory: EmotionCategory?                         // 현재 확장인 카테고리
+    private var selectedSubEmotions: [EmotionCategory: Set<String>] = [:]  // 카테고리별로 어떤 subEmotion들이 선택되어 있는지 로컬 상태로 보관
     
     // 셀 선택이 남아 있는 것을 방지하기 위한 프로퍼티
-    private var expandedIndexPath: IndexPath?
-    private var selectionEnabled: Bool = true
+    private var expandedIndexPath: IndexPath?        // 어떤 카테고리 셀이 펼쳐져 있는지를 indexPath로 저장
+    private var selectionEnabled: Bool = true        // ViewModel에서 선택을 잠시 비활성화해야 할 때, 모든 subEmotion 버튼을 터치 불가능하게 처리
     
     
     // MARK: ✅ Callback
-    var onEmotionSelected: ((EmotionCategory, [String]) -> Void)?
-    var onTrySelectEmotion: ((EmotionCategory, [String]) -> Bool)?
+    var onEmotionSelected: ((EmotionCategory, [String]) -> Void)?   // 최종적으로 선택이 완료되고(validated) 외부에 알려주는 콜백, 내부 candidate가 ViewModel의 검증을 통과했을 때만 호출
+    var onTrySelectEmotion: ((EmotionCategory, [String]) -> Bool)?  // 선택이 가능한지를 ViewModel에 먼저 묻는 콜백, 내부 로직: candidate 생성 -> ViewModel 검토 요청 -> UI 업데이트 여부 결정
 
 
     // MARK: ✅ Initialization
@@ -51,6 +52,7 @@ final class EmotionStepCell: UICollectionViewCell {
     
     
     // MARK: ✅ Configure
+    // 이 시점에서는 선택 상태 유지
     func configure(title: String, guide: String, categories: [EmotionCategory]) {
         titleLabel.text = title
         guideLabel.text = guide
@@ -161,7 +163,7 @@ extension EmotionStepCell {
         )
     }
     
-    // EmotionCategoryCell 에 선택한 셀을 전달하는 함수
+    // 선택 가능 여부를 외부에서 조절하기 위한 메서드
     func updateSelectEnabled(_ allowed: Bool) {
         self.selectionEnabled = allowed
         emotionCollectionView.visibleCells.forEach { cell in
@@ -179,6 +181,7 @@ extension EmotionStepCell: UICollectionViewDataSource {
         return categories.count
     }
     
+    // “열렸다면 버튼 상태를 어떻게 보여줄까?”까지 담당
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath)
     -> UICollectionViewCell {
         
@@ -200,8 +203,7 @@ extension EmotionStepCell: UICollectionViewDataSource {
             guard let self else { return }
             
             let tapped = subs.first!                                   // 방금 눌린 아이템
-            let category = category                                    // 이 셀의 대 분류
-            var current = self.selectedSubEmotions[category] ?? []     // 현재 선택 상태 가져오기
+            let current = self.selectedSubEmotions[category] ?? []     // 현재 선택 상태 가져오기
             
             // 후보 상태 만들기
             var candidate = current
@@ -239,6 +241,7 @@ extension EmotionStepCell: UICollectionViewDataSource {
 // MARK: ✅ Extension (UICollectionView Delegate)
 extension EmotionStepCell: UICollectionViewDelegate {
 
+    // "카테고리를 열어라 / 닫아라" 까지만 담당
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 
         let category = categories[indexPath.item]

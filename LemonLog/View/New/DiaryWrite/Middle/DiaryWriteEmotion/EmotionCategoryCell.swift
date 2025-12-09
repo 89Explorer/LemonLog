@@ -215,13 +215,6 @@ extension EmotionCategoryCell {
         
         onSelectSubEmotion?([item])   // 배열로 보내는 이유: 일관성 유지
         
-//        if selectedSubEmotions.contains(item) {
-//            selectedSubEmotions.remove(item)
-//        } else {
-//            selectedSubEmotions.insert(item)
-//        }
-//        updateSubEmotionButtons()
-        
     }
     
     func setSelectionEnabled(_ allowed: Bool) {

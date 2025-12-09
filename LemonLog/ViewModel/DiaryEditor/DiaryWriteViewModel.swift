@@ -95,11 +95,6 @@ extension DiaryWriteViewModel {
 
         var errors: [DiaryValidationError] = []
 
-        if diary.emotion.category == .none {
-            errors.append(.init(field: .emotion,
-                message: NSLocalizedString("validation_error_emotion_required", comment: "")))
-        }
-
         let content = diary.content
 
         if content.situation.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -158,6 +153,12 @@ extension DiaryWriteViewModel {
         }
     }
 
+}
+
+
+// MARK: ✅ Extension (감정 단계의 유효성검사)
+extension DiaryWriteViewModel {
+    
     // 감정 선택 업데이트 함수
     func updateEmotion(_ emotion: EmotionSelection) {
         editableDiary.emotion = emotion
@@ -175,14 +176,14 @@ extension DiaryWriteViewModel {
         
         // 최대 3개 제한
         if emotion.subEmotion.count > 3 {
-            triggerError("최대 3개까지만 선태할 수 있어요!")
+            triggerError(.selectionLimit)
             return false
         }
         
         // 다른 카테고리 선택 불가
         let currentCategory = editableDiary.emotion.category
         if currentCategory != .none && currentCategory != emotion.category {
-            triggerError("다른 카테고리는 함께 선택할 수 없어요!")
+            triggerError(.categoryMismatch)
             return false
         }
         
@@ -193,28 +194,60 @@ extension DiaryWriteViewModel {
     }
 
     // 에러메세지를 전달하는 메서드
-    private func triggerError(_ message: String) {
-        errorMessage = message
+    private func triggerError(_ error: DiaryValidationErrorMessage) {
+        errorMessage = error.localizedMessage
     }
     
     @discardableResult
-    func canProceedToNextStep(currentStep: DiaryWriteStep) -> Bool {
-
-        switch currentStep {
-
+    func canProceedToNextStep(_ step: DiaryWriteStep) -> Bool {
+        switch step {
+            
         case .emotion:
-            // 최소 1개 subEmotion 선택했는지 검사
-            if editableDiary.emotion.subEmotion.isEmpty {
-                triggerError("최소한 1개의 감정을 선택해주세요!")
+            guard !editableDiary.emotion.subEmotion.isEmpty else {
+                triggerError(.emotionRequired)
                 return false
             }
             return true
-
-        default:
+            
+        case .situation:
+            guard !editableDiary.content.situation.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                triggerError(.situationRequired)
+                return false
+            }
+            return true
+            
+        case .thought:
+            guard !editableDiary.content.thought.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                triggerError(.thoughtRequired)
+                return false
+            }
+            return true
+            
+        case .reeval:
+            guard !editableDiary.content.reeval.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                triggerError(.reevaluateRequired)
+                return false
+            }
+            return true
+            
+        case .action:
+            guard !editableDiary.content.action.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                triggerError(.actionRequired)
+                return false
+            }
+            return true
+            
+        case .dateAndImages:
             return true
         }
     }
+}
 
+
+// MARK: ✅ enum - Diary Mode
+enum DiaryMode {
+    case create
+    case edit(EmotionDiaryModel)
 }
 
 
@@ -227,16 +260,76 @@ struct DiaryEditorUIState {
 }
 
 
-// MARK: ✅ enum - Diary Mode
-enum DiaryMode {
-    case create
-    case edit(EmotionDiaryModel)
+// MARK: ✅ Enum (Emotion 유효성 검사에 따른 안내 멘트)
+enum DiaryValidationErrorMessage: String {
+    
+    // 감정 단계(Emotion)
+    case emotionRequired = "validation_error_emotion_required"
+    case selectionLimit = "max_selection_limit"
+    case categoryMismatch = "category_mismatch_error"
+    case minimumEmotionSelection = "minimum_selection_required"
+    
+    // Situation 단계
+    case situationRequired = "validation_error_situation_required"
+    
+    // Thought 단계
+    case thoughtRequired = "validation_error_thought_required"
+    
+    // Re-evaluate 단계
+    case reevaluateRequired = "validation_error_reeval_required"
+    
+    // Action 단계
+    case actionRequired = "validation_error_action_required"
+    
+    
+    // MARK: - Localized Message
+    var localizedMessage: String {
+        return NSLocalizedString(
+            self.rawValue,
+            tableName: "Localizable",
+            bundle: .main,
+            value: self.defaultMessage,
+            comment: ""
+        )
+    }
+    
+    
+    // MARK: - Default Message (키 누락 시 fallback)
+    private var defaultMessage: String {
+        switch self {
+            
+        // Emotion 관련
+        case .emotionRequired:
+            return "오늘 느낀 감정을 선택해 주세요."
+        case .selectionLimit:
+            return "최대 3개까지만 선택할 수 있어요!"
+        case .categoryMismatch:
+            return "다른 카테고리 감정은 함께 선택할 수 없어요!"
+        case .minimumEmotionSelection:
+            return "최소한 1개의 감정을 선택해주세요!"
+            
+        // Situation
+        case .situationRequired:
+            return "상황을 입력해 주세요."
+            
+        // Thought
+        case .thoughtRequired:
+            return "생각 / 원인을 입력해 주세요."
+            
+        // Re-evaluate
+        case .reevaluateRequired:
+            return "새로운 시각 / 반박을 입력해 주세요."
+            
+        // Action
+        case .actionRequired:
+            return "다음 행동을 입력해 주세요."
+        }
+    }
 }
 
 
 // MARK: ✅ Enum -> DiaryContent 내의 텍스트뷰 유효성 검사 모걱
 enum DiaryField {
-    case emotion
     case situation
     case thought
     case reeval
