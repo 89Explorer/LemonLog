@@ -143,13 +143,12 @@ extension DiaryWriteViewModel {
 extension DiaryWriteViewModel {
     
     // 내용 작성 업데이트 함수
-    func updateContent(_ field: DiaryField, text: String) {
+    func updateContent(_ field: DiaryContent, text: String) {
         switch field {
         case .situation: editableDiary.content.situation = text
         case .thought: editableDiary.content.thought = text
         case .reeval: editableDiary.content.reeval = text
         case .action: editableDiary.content.action = text
-        default: break
         }
     }
 
@@ -198,6 +197,7 @@ extension DiaryWriteViewModel {
         errorMessage = error.localizedMessage
     }
     
+    // 감정일기를 작성하는데 사용하는 유효성검사 
     @discardableResult
     func canProceedToNextStep(_ step: DiaryWriteStep) -> Bool {
         switch step {
@@ -329,7 +329,7 @@ enum DiaryValidationErrorMessage: String {
 
 
 // MARK: ✅ Enum -> DiaryContent 내의 텍스트뷰 유효성 검사 모걱
-enum DiaryField {
+enum DiaryContent {
     case situation
     case thought
     case reeval
@@ -339,7 +339,7 @@ enum DiaryField {
 
 // MARK: ✅ Struct -> 각 필드의 값고 메시지 담당
 struct DiaryValidationError {
-    let field: DiaryField
+    let field: DiaryContent
     let message: String
 }
 // 예: DiaryValidationError(field: .situation, message: "상황을 입력해주세요.")

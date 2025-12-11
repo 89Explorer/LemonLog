@@ -8,6 +8,8 @@
 
 import UIKit
 import Combine
+import AVFoundation
+import Photos
 
 
 final class DiaryWriteViewController: UIViewController {
@@ -27,6 +29,7 @@ final class DiaryWriteViewController: UIViewController {
             updateUIForStep(index: currentStepIndex)
         }
     }
+    private var currentPhotoCell: DiaryPhotoGalleryCell?
     
     
     // MARK: ✅ UI
@@ -75,6 +78,7 @@ final class DiaryWriteViewController: UIViewController {
                 self?.updateEmotionSelectionEnabled(allowed)
             }
             .store(in: &cancellables)
+
     }
     
     
@@ -111,6 +115,7 @@ private extension DiaryWriteViewController {
         writeCollectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "cell")
         writeCollectionView.register(EmotionStepCell.self, forCellWithReuseIdentifier: EmotionStepCell.reuseIdentifier)
         writeCollectionView.register(DiaryWriteContentCell.self, forCellWithReuseIdentifier: DiaryWriteContentCell.reuseIdentifier)
+        writeCollectionView.register(DiaryWriteDateAndGalleryCell.self, forCellWithReuseIdentifier: DiaryWriteDateAndGalleryCell.reuseIdentifier)
         
         writeCollectionView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(writeCollectionView)
@@ -207,9 +212,25 @@ extension DiaryWriteViewController: UIScrollViewDelegate {
             let currentStep = steps[currentPage]
             if !diaryWriteVM.canProceedToNextStep(currentStep){
                 targetContentOffset.pointee.x = CGFloat(currentPage) * pageWidth
-                //showStepError(step: currentStep)
             }
         }
+        
+        view.endEditing(true)    // ← 현재 포커스된 UITextView/UITextField의 커서 제거 + 키보드 내려감
+    }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        updateIndexFromScroll(scrollView)
+    }
+
+    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        updateIndexFromScroll(scrollView)
+    }
+
+    private func updateIndexFromScroll(_ scrollView: UIScrollView) {
+        let pageWidth = scrollView.frame.width
+        let page = Int((scrollView.contentOffset.x + pageWidth / 2) / pageWidth)
+
+        currentStepIndex = page   // ← UI 업데이트 자동 반영됨
     }
 
 }
@@ -233,6 +254,7 @@ extension DiaryWriteViewController: UICollectionViewDataSource {
         let placeholder2 = steps[indexPath.item].placeholder2Key
         
         switch step {
+
         case .emotion:
             // 첫 페이지는 EmotionStepCell
             let cell = collectionView.dequeueReusableCell(
@@ -260,6 +282,7 @@ extension DiaryWriteViewController: UICollectionViewDataSource {
             }
             
             return cell
+            
         case .situation :
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DiaryWriteContentCell.reuseIdentifier, for: indexPath) as! DiaryWriteContentCell
             cell.configure(
@@ -267,14 +290,123 @@ extension DiaryWriteViewController: UICollectionViewDataSource {
                 guideKey: guide,
                 placeholderKey1: placeholder1,
                 placeholderKey2: placeholder2,
-                text: ""
+                text: self.diaryWriteVM.editableDiary.content.situation
             )
             
             cell.textChanged = { [weak self] situation in
                 print("상황: \(situation)")
+                self?.diaryWriteVM.updateContent(.situation, text: situation)
             }
             
             return cell
+            
+        case .thought:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DiaryWriteContentCell.reuseIdentifier, for: indexPath) as! DiaryWriteContentCell
+            cell.configure(
+                titleKey: title,
+                guideKey: guide,
+                placeholderKey1: placeholder1,
+                placeholderKey2: placeholder2,
+                text: self.diaryWriteVM.editableDiary.content.thought
+            )
+            
+            cell.textChanged = { [weak self] thought in
+                self?.diaryWriteVM.updateContent(.thought, text: thought)
+            }
+            return cell
+            
+        case .reeval:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DiaryWriteContentCell.reuseIdentifier, for: indexPath) as! DiaryWriteContentCell
+            cell.configure(
+                titleKey: title,
+                guideKey: guide,
+                placeholderKey1: placeholder1,
+                placeholderKey2: placeholder2,
+                text: self.diaryWriteVM.editableDiary.content.reeval
+            )
+            
+            cell.textChanged = { [weak self] reeval in
+                self?.diaryWriteVM.updateContent(.reeval, text: reeval)
+            }
+            return cell
+            
+        case .action:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DiaryWriteContentCell.reuseIdentifier, for: indexPath) as! DiaryWriteContentCell
+            cell.configure(
+                titleKey: title,
+                guideKey: guide,
+                placeholderKey1: placeholder1,
+                placeholderKey2: placeholder2,
+                text: self.diaryWriteVM.editableDiary.content.action
+            )
+            
+            cell.textChanged = { [weak self] action in
+                self?.diaryWriteVM.updateContent(.action, text: action)
+            }
+            
+            return cell
+            
+        case .dateAndImages:
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: DiaryWriteDateAndGalleryCell.reuseIdentifier,
+                for: indexPath
+            ) as! DiaryWriteDateAndGalleryCell
+            
+            cell.configure(
+                titleKey: title,
+                guideKey: guide
+            )
+            
+            cell.onTapDate = { [weak self, weak cell] in
+                guard let self, let cell else { return }
+                self.setupDatePicker(attachedTo: cell)
+            }
+        
+            
+            cell.onSelectPhoto = { [weak self] photoCell in
+                guard let self else { return }
+                self.currentPhotoCell = photoCell   // 날짜와 동일한 패턴
+                self.showPhotoSourceActionSheet(from: photoCell)   // 셀을 넘길 필요 없음
+                
+                photoCell.onRequestPhotoLibrary = { [weak self] in
+                    guard let self else { return }
+                    MediaPermissionManager.shared.checkAndRequestIfNeeded(.album) { granted in
+                        if granted {
+                            self.openPhotoPicker()
+                        } else {
+                            self.showPermissionAlert(type: .album)
+                        }
+                    }
+                }
+                
+                photoCell.onRequestCamera = { [weak self] in
+                    guard let self else { return }
+                    MediaPermissionManager.shared.checkAndRequestIfNeeded(.camera) { granted in
+                        if granted {
+                            self.openCamera()
+                        } else {
+                            self.showPermissionAlert(type: .camera)
+                        }
+                    }
+                }
+                
+                photoCell.onRequestDocument = { [weak self] in
+                    self?.presentDocumentPicker()
+                }
+                
+                photoCell.onPreviewRequested = { [weak self] images, startIndex in
+                    guard let self else { return }
+                    let previewVC = PhotoPreviewViewController(images: images, startIndex: startIndex)
+                    self.present(previewVC, animated: true)
+                }
+                
+                cell.onImagesUpdated = { [weak self] images in
+                    self?.diaryWriteVM.editableDiary.images = images
+                }
+            }
+            
+            return cell
+
         
         default:
             // 나머지 셀은 컬러 테스트용 셀
@@ -328,6 +460,13 @@ extension DiaryWriteViewController {
         backBarButton.tintColor = .black
         
         navigationItem.leftBarButtonItem = backBarButton
+        
+        let navigationTitle = UILabel()
+        navigationTitle.text = self.diaryWriteVM.uiState.navigationTitle
+        navigationTitle.font =  UIFont(name: "DungGeunMo", size: 16)
+        navigationTitle.textColor = .black
+        
+        navigationItem.titleView = navigationTitle
     }
     
     @objc private func didTappedBack() {
@@ -335,6 +474,192 @@ extension DiaryWriteViewController {
     }
 }
 
+
+// MARK: ✅ Extension (날짜 선택)
+private extension DiaryWriteViewController {
+    
+    private func setupDatePicker(attachedTo cell: DiaryWriteDateAndGalleryCell) {
+        let calendarVC = CustomCalendarViewController()
+        
+        if let sheet = calendarVC.sheetPresentationController {
+            sheet.detents = [.medium()]
+            sheet.prefersGrabberVisible = true
+            sheet.preferredCornerRadius = 20
+        }
+        
+        calendarVC.onDateSelected = { [weak self, weak cell] date in
+            guard let self, let cell else { return }
+            print("선택된 날짜: \(date)")
+            
+            self.diaryWriteVM.editableDiary.createdAt = date
+            cell.updateDate(date)      // ✅ 바로 그 셀에 반영
+        }
+
+        present(calendarVC, animated: true)
+    }
+        
+}
+
+
+// MARK: ✅ Extension - showPhotoSourceActionSheet() -> 사진첩
+extension DiaryWriteViewController {
+    
+    func showPhotoSourceActionSheet(from cell: DiaryPhotoGalleryCell) {
+        
+        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        
+        // 사진 보관함
+        let galleryAction = UIAlertAction(
+            title: NSLocalizedString("photo.sheet.gallery", comment: ""),
+            style: .default,
+            handler: { _ in
+                cell.onRequestPhotoLibrary?()
+                //self.openPhotoPicker()
+        })
+        alert.addAction(galleryAction)
+        
+        // 사진 찍기
+        let cameraAction = UIAlertAction(
+            title: NSLocalizedString("photo.sheet.camera", comment: ""),
+            style: .default,
+            handler: { _ in
+                cell.onRequestCamera?()
+                //self.openCamera()
+        })
+        alert.addAction(cameraAction)
+        
+        // 파일 선택
+        let fileAction = UIAlertAction(
+            title: NSLocalizedString("photo.sheet.file", comment: ""),
+            style: .default,
+            handler: { _ in
+                cell.onRequestDocument?()
+                //self.presentDocumentPicker()
+        })
+        alert.addAction(fileAction)
+        
+        // 취소
+        alert.addAction(UIAlertAction(
+            title: NSLocalizedString("photo.sheet.cancel", comment: ""),
+            style: .cancel
+        ))
+        
+        present(alert, animated: true)
+        
+    }
+    
+}
+
+
+// MARK: ✅ Extension - UIDocumentPickerDelegate
+extension DiaryWriteViewController: UIDocumentPickerDelegate {
+    
+    func presentDocumentPicker() {
+        
+        // 파일 보관함에서 "이미지"만 보이게 필터링
+        let picker = UIDocumentPickerViewController(
+            forOpeningContentTypes: [UTType.image],
+            asCopy: true
+        )
+        
+        picker.delegate = self
+        picker.allowsMultipleSelection = false
+        present(picker, animated: true)
+    }
+    
+    func documentPicker(_ controller: UIDocumentPickerViewController,
+                        didPickDocumentsAt urls: [URL]) {
+        
+        guard let url = urls.first,
+              let cell = currentPhotoCell else { return }
+        
+        let coordinated = url.startAccessingSecurityScopedResource()
+        
+        defer {
+            if coordinated {
+                url.stopAccessingSecurityScopedResource()
+            }
+        }
+        
+        do {
+            let data = try Data(contentsOf: url)
+            if let image = UIImage(data: data)?.resized() {
+                cell.appendImage(image)
+            }
+        } catch {
+            LogManager.print(.error, "파일 로드 실패 \(error.localizedDescription)")
+        }
+    }
+    
+}
+
+
+// MARK: ✅ Extension - UIImagePickerControllerDelegate,UINavigationControllerDelegate -> 사진 선택
+extension DiaryWriteViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    func openPhotoPicker() {
+        let picker = UIImagePickerController()
+        picker.delegate = self
+        picker.sourceType = .photoLibrary
+        present(picker, animated: true)
+    }
+    
+    func openCamera() {
+        let picker = UIImagePickerController()
+        picker.delegate = self
+        picker.sourceType = .camera
+        present(picker, animated: true)
+    }
+    
+    // 선택 완료
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        
+        if let image = info[.originalImage] as? UIImage,
+           let cell = currentPhotoCell {
+            cell.appendImage(image)
+        }
+
+        picker.dismiss(animated: true)
+    }
+    
+}
+
+
+// MARK: ✅ Extension - showPermissionAlert() -> 안내 메시지
+extension DiaryWriteViewController {
+    
+    func showPermissionAlert(type: MediaPermissionType) {
+        
+        let titleKey = (type == .camera)
+            ? "photo.permission.camera.title"
+            : "photo.permission.album.title"
+        
+        let title = NSLocalizedString(titleKey, comment: "")
+        let message = NSLocalizedString("photo.permission.message", comment: "")
+        
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        
+        let setting = UIAlertAction(
+            title: NSLocalizedString("photo.permission.gotoSetting", comment: ""),
+            style: .default
+        ) { _ in
+            if let url = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(url)
+            }
+        }
+        
+        let confirm = UIAlertAction(
+            title: NSLocalizedString("photo.permission.confirm", comment: ""),
+            style: .cancel
+        )
+        
+        alert.addAction(setting)
+        alert.addAction(confirm)
+        
+        present(alert, animated: true)
+    }
+    
+}
 
 
 // MARK: ✅ Enum (감정일기 각 스텝을 담는 enum)

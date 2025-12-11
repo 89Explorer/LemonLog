@@ -4,24 +4,28 @@
 //
 //  Created by 권정근 on 12/9/25.
 //
+// ▶️ 감정일기에서 내용에 작성하는 할 수 있는 셀 ◀️
 
 import UIKit
+
 
 final class DiaryWriteContentCell: UICollectionViewCell {
     
     
-    // MARK: - ReuseIdentifier
+    // MARK: ✅ ReuseIdentifier
     static let reuseIdentifier: String = "DiaryWriteContentCell"
     
     
-    // MARK: - Callbacks
+    // MARK: ✅ Callbacks
     var textChanged: ((String) -> Void)?
     var didBeginEditing: (() -> Void)?
     
-    // MARK: - Constants
+    
+    // MARK: ✅ Constants
     private let maxCharacters: Int = 300
     
-    // MARK: - UI
+    
+    // MARK: ✅ UI
     private let titleLabel = UILabel()
     private let guideLabel = UILabel()
     private let textView = UITextView()
@@ -30,7 +34,8 @@ final class DiaryWriteContentCell: UICollectionViewCell {
     private let counterLabel = UILabel()
     private let errorLabel = UILabel()
     
-    // MARK: - AccessoryView
+    
+    // MARK: ✅ AccessoryView (키보드 내리는 뷰)
     private lazy var accessory: DiaryAccessoryView = {
         let view = DiaryAccessoryView()
         view.onKeyboardDismiss = { [weak self] in
@@ -39,7 +44,8 @@ final class DiaryWriteContentCell: UICollectionViewCell {
         return view
     }()
     
-    // MARK: - Init (⭐️ 컬렉션뷰가 호출하는 이 생성자 필수)
+    
+    // MARK: ✅ Init (⭐️ 컬렉션뷰가 호출하는 이 생성자 필수)
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureUI()   // 여기서는 레이아웃/스타일만 세팅
@@ -50,7 +56,7 @@ final class DiaryWriteContentCell: UICollectionViewCell {
     }
     
     
-    // MARK: - Public: 외부에서 내용 세팅
+    // MARK: ✅ Public (외부에서 내용 세팅)
     func configure(
         titleKey: String,
         guideKey: String,
@@ -66,6 +72,7 @@ final class DiaryWriteContentCell: UICollectionViewCell {
         setText(text)
     }
     
+    // setText
     func setText(_ text: String) {
         textView.text = text
         updatePlaceholder()
@@ -73,12 +80,14 @@ final class DiaryWriteContentCell: UICollectionViewCell {
         clearError()
     }
     
+    // showError
     func showError(message: String) {
         errorLabel.text = message
         errorLabel.isHidden = false
         textView.layer.borderColor = UIColor.systemRed.cgColor
     }
     
+    // clearError
     func clearError() {
         errorLabel.isHidden = true
         textView.layer.borderColor = UIColor.systemGray5.cgColor
@@ -86,7 +95,7 @@ final class DiaryWriteContentCell: UICollectionViewCell {
 }
 
 
-// MARK: - Configure UI
+// MARK: ✅ Configure UI
 private extension DiaryWriteContentCell {
     
     func configureUI() {
@@ -98,27 +107,29 @@ private extension DiaryWriteContentCell {
     func setupLabels() {
         // Title
         titleLabel.textColor = .black
-        titleLabel.font = .systemFont(ofSize: 14, weight: .bold)
+        titleLabel.font = UIFont(name: "DungGeunMo", size: 20)
+        titleLabel.textAlignment = .center
         
         // Guide
-        guideLabel.textColor = .systemGray
-        guideLabel.font = .systemFont(ofSize: 12, weight: .semibold)
+        guideLabel.textColor = .darkGray
+        guideLabel.font = UIFont(name: "DungGeunMo", size: 12)
         guideLabel.numberOfLines = 0
+        guideLabel.textAlignment = .center
         
         // Placeholder
         [placeholderLabel1, placeholderLabel2].forEach {
             $0.textColor = .placeholderText
-            $0.font = .systemFont(ofSize: 12)
+            $0.font = UIFont(name: "DungGeunMo", size: 12)
             $0.numberOfLines = 0
         }
         
         // Counter
         counterLabel.text = "0 / \(maxCharacters)"
-        counterLabel.font = .systemFont(ofSize: 12)
-        counterLabel.textColor = .systemGray
+        counterLabel.font = UIFont(name: "DungGeunMo", size: 12)
+        counterLabel.textColor = .lightGray
         
         // Error
-        errorLabel.font = .systemFont(ofSize: 12, weight: .semibold)
+        errorLabel.font = UIFont(name: "DungGeunMo", size: 12)
         errorLabel.textColor = .systemRed
         errorLabel.numberOfLines = 0
         errorLabel.isHidden = true
@@ -126,29 +137,14 @@ private extension DiaryWriteContentCell {
     
     func setupTextView() {
         textView.delegate = self
-        textView.font = .systemFont(ofSize: 12)
+        textView.textColor = .black
+        textView.font = UIFont(name: "DungGeunMo", size: 12)
         textView.layer.cornerRadius = 8
-        textView.layer.borderWidth = 1
+        textView.layer.borderWidth = 2
         textView.layer.borderColor = UIColor.systemGray5.cgColor
         textView.textContainerInset = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
         textView.inputAccessoryView = accessory
-        
-        // placeholder를 textView 안에 추가
-        textView.addSubview(placeholderLabel1)
-        textView.addSubview(placeholderLabel2)
-        
-        placeholderLabel1.translatesAutoresizingMaskIntoConstraints = false
-        placeholderLabel2.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            placeholderLabel1.topAnchor.constraint(equalTo: textView.topAnchor, constant: 8),
-            placeholderLabel1.leadingAnchor.constraint(equalTo: textView.leadingAnchor, constant: 12),
-            placeholderLabel1.trailingAnchor.constraint(equalTo: textView.trailingAnchor, constant: -12),
-            
-            placeholderLabel2.topAnchor.constraint(equalTo: placeholderLabel1.bottomAnchor, constant: 6),
-            placeholderLabel2.leadingAnchor.constraint(equalTo: textView.leadingAnchor, constant: 12),
-            placeholderLabel2.trailingAnchor.constraint(equalTo: textView.trailingAnchor, constant: -12)
-        ])
+        textView.isScrollEnabled = false
     }
     
     func setupLayout() {
@@ -157,33 +153,45 @@ private extension DiaryWriteContentCell {
             contentView.addSubview($0)
         }
         
+        contentView.addSubview(placeholderLabel1)
+        contentView.addSubview(placeholderLabel2)
+        
+        placeholderLabel1.translatesAutoresizingMaskIntoConstraints = false
+        placeholderLabel2.translatesAutoresizingMaskIntoConstraints = false
+        
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
+            titleLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             
-            guideLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
-            guideLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            guideLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            guideLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
+            guideLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             
-            textView.topAnchor.constraint(equalTo: guideLabel.bottomAnchor, constant: 8),
-            textView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            textView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            textView.heightAnchor.constraint(equalToConstant: 160),
+            textView.topAnchor.constraint(equalTo: guideLabel.bottomAnchor, constant: 20),
+            textView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            textView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            textView.heightAnchor.constraint(equalToConstant: 200),
+            
+            placeholderLabel1.topAnchor.constraint(equalTo: textView.topAnchor, constant: 8),
+            placeholderLabel1.leadingAnchor.constraint(equalTo: textView.leadingAnchor, constant: 8),
+            placeholderLabel1.trailingAnchor.constraint(equalTo: textView.trailingAnchor, constant: -8),
+            
+            placeholderLabel2.topAnchor.constraint(equalTo: placeholderLabel1.bottomAnchor, constant: 8),
+            placeholderLabel2.leadingAnchor.constraint(equalTo: textView.leadingAnchor, constant: 8),
+            placeholderLabel2.trailingAnchor.constraint(equalTo: textView.trailingAnchor, constant: -8),
             
             counterLabel.topAnchor.constraint(equalTo: textView.bottomAnchor, constant: 4),
-            counterLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            counterLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            counterLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            //counterLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             
             errorLabel.bottomAnchor.constraint(equalTo: counterLabel.topAnchor, constant: -2),
-            errorLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            errorLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
+            errorLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            //errorLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
         ])
     }
 }
 
 
-// MARK: - UITextViewDelegate
+// MARK: ✅ UITextViewDelegate
 extension DiaryWriteContentCell: UITextViewDelegate {
     
     func textViewDidBeginEditing(_ textView: UITextView) {
@@ -198,6 +206,7 @@ extension DiaryWriteContentCell: UITextViewDelegate {
         textChanged?(textView.text)
     }
     
+    // maxCharacters를 기준으로 글자수 제한하는 함수
     func textView(_ textView: UITextView,
                   shouldChangeTextIn range: NSRange,
                   replacementText text: String) -> Bool {

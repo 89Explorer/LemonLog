@@ -48,32 +48,32 @@
 
 /* DiaryWriteViewController - guideLabel, textView, placeHolderLabel */
 "diary.emotion.title" = "🙂 지금 어떤 감정이 드나요?";
-"diary.emotion.guide" = "  오늘 하루, 가장 먼저 떠오르는 감정을 골라보세요. \n (단, 같은 카테고리 내 최대 3개까지 선택가능합니다.)";
+"diary.emotion.guide" = "오늘 가장 강하게 드는 감정을 골라주세요. \n 같은 카테고리 내에서 최대 3개까지 선택할 수 있어요.";
 "diary.emotion.placeholder1" = "예: 기뻤어요, 화가 났어요, 불안했어요, 지쳤어요…";
 "diary.emotion.placeholder2" = "";
 
 "diary.situation.title" = "📍 무슨 일이 있었나요?";
-"diary.situation.guide" = "  판단 없이 객관적인 사실만 기록해 주세요. \n 누가, 언제, 어디서, 무엇을 했는지, 있는 그대로 담아주세요.";
+"diary.situation.guide" = "판단 없이 객관적인 사실만 기록해 주세요. \n 누가, 언제, 어디서, 무엇을 했는지 그대로 담아보세요.";
 "diary.situation.placeholder1" = "예 1: 오늘 오후 3시, 중요한 팀 회의에서 발표를 마쳤습니다.";
 "diary.situation.placeholder2" = "예 2: 어제 친한 친구 A에게 고민을 털어놓았는데, A가 내 말은 듣는 둥 마는 둥 하며 결국 자신의 이야기로 대화를 끝냈습니다.";
 
 "diary.thought.title" = "🤔 마음속을 스치는 생각";
-"diary.thought.guide" = "  그 상황 속에서 내가 '왜' 이런 감정을 느꼈는지, \n 그 이유를 마음속에서 찾아봅니다. \n 편안하게 흘러가듯 적어보세요.";
+"diary.thought.guide" = "그 상황 속에서 내가 '왜' 이런 감정을 느꼈는지, \n 편안하게 흘러가듯 적어보세요.";
 "diary.thought.placeholder1" = "예: 이럴 거면 준비를 왜 했지? 나는 늘 중요한 순간에 실수를 하는 한심한 사람이야.";
 "diary.thought.placeholder2" = "예 2: A는 나를 진심으로 생각하지 않는 것 같아. 내 고민은 별것 아닌가 봐. 이 관계는 나 혼자만 노력하는 것 같다.";
 
 "diary.reeval.title" = "💡 잠시 멈춰 다르게 보기";
-"diary.reeval.guide" = "  내 생각을 '맞다'고 이야기해주는 것들과, '혹시 틀릴 수도 있다'고 말해주는 것들을  모두 떠올려 보세요. 가장 친한 친구에게 조언하듯, 이 상황을 다른 시선으로 바라봅니다.";
+"diary.reeval.guide" = "친구에게 조언하듯 이 상황을 다른 시선으로 바라보며 \n 나의 상황에 대해 적어보세요 ";
 "diary.reeval.placeholder1" = "예: '한심하다'는 생각에 반박 → 버벅였지만 회의 준비 자료는 완벽했고, 아이디어는 칭찬받았다.";
 "diary.reeval.placeholder2" = "예: A가 최근 회사 일로 많이 지쳐 보여서 내 고민을 깊이 들을 여력이 없었을 수도 있다. 나를 무시한 것이 아닐 수 있다.";
 
 "diary.action.title" = "✅ 나를 위한 따뜻한 약속";
-"diary.action.guide" = "  이 경험을 통해 나를 더 건강하게 지켜줄 수 있는 '작고 구체적인' 행동 계획을 한두 가지 적어보세요. 나 자신을 응원하는 마음으로요.";
+"diary.action.guide" = "나를 위한 '건강한 습관'을 하나 정해볼까요? \n 이번 경험이 나를 더 단단하게 만들 거예요.";
 "diary.action.placeholder1" = "예: 다음 발표 전에 3회 이상 소리 내어 연습하기.";
 "diary.action.placeholder2" = "예: 다음에 서운함을 느낄 때, 감정이 가라앉은 후 A에게 솔직하게 '네가 내 이야기를 들어주지 않아 조금 서운했어'라고 말해보기.";
 
 "diary.date.title" = "📅 언제의 기록인가요?";
-"diary.date.guide" = "  감정일기를 남길 날짜를 선택해주세요. 오늘이 아니어도 괜찮아요. 이 순간을 기억하고 싶은 사진도 함께 첨부할 수 있어요.";
+"diary.date.guide" = "  감정일기를 남길 날짜를 선택해주세요. \n 이 순간을 기억하고 싶은 사진도 함께 첨부할 수 있어요.";
 "diary.date.placeholder1" = "예: 오늘 찍은 사진 또는 기억하고 싶은 순간의 사진을 선택해보세요.";
 "diary.date.placeholder2" = "";
 
@@ -93,16 +93,16 @@
 
 
 /* SaveButtonCell - 저장하기 버튼 타이틀 */
-"save_button_title" = "저장하기";
-"update_button_title" = "수정하기";
+"save_button_title" = "저장";
+"update_button_title" = "수정";
 
 
 /* DiaryWriteViewModel - 유효성 검사 안내 멘트 */
-"validation_error_emotion_required" = "오늘 느낀 감정을 선택해 주세요.";
-"validation_error_situation_required" = "상황을 입력해 주세요.";
-"validation_error_thought_required" = "생각 / 원인을 입력해 주세요.";
-"validation_error_reeval_required" = "새로운 시각 / 반박을 입력해 주세요.";
-"validation_error_action_required" = "다음 행동을 입력해 주세요.";
+"validation_error_emotion_required" = "오늘의 감정을 잊지 말고 꼭 선택해주세요!";
+"validation_error_situation_required" = "어떤 일이 있었는지 상황을 기록해주세요.";
+"validation_error_thought_required" = "마음 속 생각, 감정의 이유를 적어주세요.";
+"validation_error_reeval_required" = "이 상황을 다르게 보는 시각을 적어볼까요?";
+"validation_error_action_required" = "나를 위한 따뜻한 행동 약속을 하나 적어주세요.";
 
 "max_selection_limit" = "최대 3개까지만 선택할 수 있어요!";
 "category_mismatch_error" = "다른 카테고리 감정은 함께 선택할 수 없어요!";

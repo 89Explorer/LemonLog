@@ -17,6 +17,8 @@ final class PagingControlView: UIView {
     private let nextButton: UIButton = UIButton(type: .system)
     private let indicator: PagingIndicator
     
+    private let doneButton: UIButton = UIButton(type: .system)
+    
     
     // MARK: ✅ Data
     private var total: Int = 0
@@ -34,6 +36,7 @@ final class PagingControlView: UIView {
     // MARK: ✅ Callbacks
     var onTapPrev: (() -> Void)?
     var onTapNext: (() -> Void)?
+    var onTapDone: (() -> Void)?
     
     
     // MARK: ✅ Initialization
@@ -70,13 +73,23 @@ final class PagingControlView: UIView {
         nextButton.layer.cornerRadius = 28
         nextButton.addTarget(self, action: #selector(didTapNext), for: .touchUpInside)
         
+        doneButton.setImage(UIImage(systemName: "checkmark", withConfiguration: config), for: .normal)
+        doneButton.tintColor = .white
+        doneButton.backgroundColor = UIColor.systemPurple
+        doneButton.layer.cornerRadius = 28
+        doneButton.isHidden = true
+        doneButton.addTarget(self, action: #selector(didTapDone), for: .touchUpInside)
+        
         prevButton.translatesAutoresizingMaskIntoConstraints = false
         nextButton.translatesAutoresizingMaskIntoConstraints = false
         indicator.translatesAutoresizingMaskIntoConstraints = false
         
+        doneButton.translatesAutoresizingMaskIntoConstraints = false
+        
         addSubview(prevButton)
         addSubview(indicator)
         addSubview(nextButton)
+        addSubview(doneButton)
         
         NSLayoutConstraint.activate([
             prevButton.widthAnchor.constraint(equalToConstant: 56),
@@ -90,7 +103,12 @@ final class PagingControlView: UIView {
             nextButton.centerYAnchor.constraint(equalTo: centerYAnchor),
             
             indicator.centerXAnchor.constraint(equalTo: centerXAnchor),
-            indicator.centerYAnchor.constraint(equalTo: centerYAnchor)
+            indicator.centerYAnchor.constraint(equalTo: centerYAnchor),
+            
+            doneButton.widthAnchor.constraint(equalToConstant: 56),
+            doneButton.heightAnchor.constraint(equalToConstant: 56),
+            doneButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -24),
+            doneButton.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
     }
     
@@ -104,6 +122,9 @@ final class PagingControlView: UIView {
         
         // 마지막 페이지: next 버튼 숨김
         nextButton.isHidden = isLastPage
+        
+        doneButton.isHidden = !isLastPage
+    
     }
     
     
@@ -114,6 +135,10 @@ final class PagingControlView: UIView {
 
     @objc private func didTapNext() {
         onTapNext?()
+    }
+    
+    @objc private func didTapDone() {
+        onTapDone?()
     }
     
 }

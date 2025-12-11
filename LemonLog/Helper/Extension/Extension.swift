@@ -25,7 +25,7 @@ extension UIImage {
 
 // MARK: ✅ Class - UILabel에 Padding 적용
 class BasePaddingLabel: UILabel {
-    private var padding = UIEdgeInsets(top: 8.0, left: 8.0, bottom: 8.0, right: 8.0)
+    private var padding = UIEdgeInsets(top: 4.0, left: 8.0, bottom: 4.0, right: 8.0)
     
     convenience init(padding: UIEdgeInsets) {
         self.init()

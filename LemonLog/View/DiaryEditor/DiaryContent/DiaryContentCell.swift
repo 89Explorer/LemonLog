@@ -132,7 +132,7 @@ final class DiaryContentCell: UICollectionViewCell {
     
     
     // MARK: ✅ showError()
-    func showError(for field: DiaryField, message: String) {
+    func showError(for field: DiaryContent, message: String) {
         
         switch field {
             

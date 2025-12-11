@@ -153,7 +153,7 @@ extension CalendarItemCell {
         
         switch state.section {
         case .month:
-            titleLabel.font = UIFont(name: "DungGeunMo", size: 24)
+            titleLabel.font = UIFont(name: "DungGeunMo", size: 20)
             titleLabel.textColor = .black
             titleLabel.textAlignment = .left
             contentView.layer.borderWidth = 0.0

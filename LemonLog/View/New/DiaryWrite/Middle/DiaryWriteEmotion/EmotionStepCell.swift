@@ -6,7 +6,6 @@
 //
 // ▶️ 이 셀은 감정 선택 UI의 중심역할을 수행하는 View이며, 실제 “검증”은 ViewModel이 담당하고 UI 업데이트는 이 셀이 담당하는 구조 ◀️
 
-
 import UIKit
 
 
@@ -68,7 +67,7 @@ extension EmotionStepCell {
     private func setupUI() {
 
         //titleLabel.text = "오늘의 감정"
-        titleLabel.font = UIFont(name: "DungGeunMo", size: 22)
+        titleLabel.font = UIFont(name: "DungGeunMo", size: 20)
         titleLabel.textAlignment = .center
         titleLabel.textColor = .black
 

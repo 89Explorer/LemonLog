@@ -13,8 +13,14 @@ import Combine
 final class MonthCalendarCell: UICollectionViewCell {
     
     
+    private var titleMode: MonthTitleMode = .simple
+    
+    
     // MARK: ✅ Closure
     var onTappedFullCalendar: (() -> Void)?
+    
+    // 선택한 날짜를 전달하기 위한 콜백
+    var onDaySelected: ((Date) -> Void)?
     
     
     // MARK: ✅ Data Source
@@ -35,7 +41,7 @@ final class MonthCalendarCell: UICollectionViewCell {
     
     // MARK: ✅ UI
     private var monthCalendarCollectionView: UICollectionView!
-    private var fullCalendarButton: UIButton!
+    private lazy var fullCalendarButton: UIButton = UIButton(type: .system)
     
     
     // MARK: ✅ Initialization
@@ -67,6 +73,14 @@ final class MonthCalendarCell: UICollectionViewCell {
         applySnapshot(for: vm.currentMonth)
     }
     
+    func configure(with vm: CalendarViewModel, month: Date, isHidden: Bool = false, mode: MonthTitleMode) {
+        self.calendarVM = vm
+        cancellables.removeAll()   // 구독 초기화
+        applySnapshot(for: vm.currentMonth)
+        self.titleMode = mode
+        self.fullCalendarButton.isHidden = !isHidden
+    }
+    
     
     // MARK: ✅ Setup Binding
     private func setupBindings() {
@@ -80,6 +94,7 @@ final class MonthCalendarCell: UICollectionViewCell {
             }
             .store(in: &cancellables)
     }
+    
 }
 
 
@@ -88,7 +103,7 @@ extension MonthCalendarCell {
     
     // Setup UI
     private func setupUI() {
-        contentView.backgroundColor = .systemBackground
+        contentView.backgroundColor = .clear
         contentView.layer.cornerRadius = 20
         contentView.layer.masksToBounds = true
         
@@ -101,7 +116,9 @@ extension MonthCalendarCell {
     private func setupCollectionView() {
         monthCalendarCollectionView = UICollectionView(frame: .zero,  collectionViewLayout: createLayout())
         
-        monthCalendarCollectionView.backgroundColor = .clear
+        monthCalendarCollectionView.delegate = self
+        
+        monthCalendarCollectionView.backgroundColor = .systemBackground
         monthCalendarCollectionView.showsVerticalScrollIndicator = false
         monthCalendarCollectionView.alwaysBounceVertical = false
         monthCalendarCollectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -109,13 +126,13 @@ extension MonthCalendarCell {
         monthCalendarCollectionView.register(CalendarItemCell.self, forCellWithReuseIdentifier: CalendarItemCell.reuseIdentifier)
         
         contentView.addSubview(monthCalendarCollectionView)
-    
+        
         NSLayoutConstraint.activate([
             monthCalendarCollectionView.topAnchor.constraint(equalTo: contentView.topAnchor),
             monthCalendarCollectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             monthCalendarCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             monthCalendarCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-    
+            
         ])
     }
     
@@ -136,22 +153,24 @@ extension MonthCalendarCell {
         configuration.preferredSymbolConfigurationForImage = imageConfig
         
         configuration.title = "전체 보기"
-        configuration.attributedTitle?.font = UIFont(name: "DungGeunMo", size: 12)
         
-        let button = UIButton(configuration: configuration, primaryAction: nil)
-        button.translatesAutoresizingMaskIntoConstraints = false
+        fullCalendarButton = UIButton(configuration: configuration, primaryAction: nil)
+        fullCalendarButton.translatesAutoresizingMaskIntoConstraints = false
         
-        button.addTarget(self, action: #selector(tappedFullCalendarButton), for: .touchUpInside)
+        fullCalendarButton.addTarget(self,
+                                     action: #selector(tappedFullCalendarButton),
+                                     for: .touchUpInside)
         
-        contentView.addSubview(button)
+        contentView.addSubview(fullCalendarButton)
         
         NSLayoutConstraint.activate([
-            button.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            button.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24)
+            fullCalendarButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            fullCalendarButton.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24)
         ])
     }
     
-    // Action Method - tapped FullCalendarButton 
+    
+    // Action Method - tapped FullCalendarButton
     @objc private func tappedFullCalendarButton() {
         onTappedFullCalendar?()
     }
@@ -179,16 +198,26 @@ extension MonthCalendarCell {
                     let components = raw.components(separatedBy: " ")   // '2025년', '12월'
                     let monthOnly = components.last ?? raw              // '12월'
                     
+                    let displayText: String
+                    
+                    switch self.titleMode {
+                    case .full:
+                        displayText = raw
+                    case .simple:
+                        displayText = monthOnly
+                    }
+                    
                     let state = CalendarItemState(
                         section: .month,
                         isToday: false,
                         hasDiary: false
                     )
-                    
+                
                     cell.configure(
-                        text: monthOnly,
+                        text: displayText,
                         state: state
                     )
+                    
                     return cell
                     
                     // Weak 섹션
@@ -249,7 +278,7 @@ extension MonthCalendarCell {
         )
     }
     
-    // Apply Snapshot 
+    // Apply Snapshot
     private func applySnapshot(for month: Date) {
         var snapshot = NSDiffableDataSourceSnapshot<MonthCalendarSection, MonthCalendarItem>()
         
@@ -349,7 +378,7 @@ extension MonthCalendarCell {
         let item = NSCollectionLayoutItem(
             layoutSize: itemSize
         )
-    
+        
         let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: .init(widthDimension: .fractionalWidth(1.0),
                               heightDimension: .estimated(36)),
@@ -363,7 +392,27 @@ extension MonthCalendarCell {
         section.contentInsets = .init(top: 0 , leading: 16, bottom: 8, trailing: 16)
         return section
     }
+    
+}
 
+
+// MARK: ✅ Extension (UICollectionViewDelegateFlowLayout)
+extension MonthCalendarCell: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        // 선택된 indexPath에 해당하는 item을 dataSource에서 꺼냄
+        guard let item = dataSource.itemIdentifier(for: indexPath) else { return }
+        
+        // day 케이스만 골라서 date를 뽑는다.
+        switch item {
+        case .day(_, let date):
+            // dayGrid에서 공백 채우기 위한 nil 체크
+            guard let date else { return }
+            onDaySelected?(date)
+        default:
+            break
+        }
+    }
 }
 
 
@@ -380,4 +429,10 @@ enum MonthCalendarItem: Hashable {
     case month(Date)     // 해당 월의 대표 날짜 (예: 2025-12-01)
     case week(String)    // "일요일", "월요일", "화요일" ....
     case day(id: UUID, date: Date?)      // 실제 날짜 (없으면 nil: 공백)
+}
+
+
+enum MonthTitleMode {
+    case full      // "2025년 12월"
+    case simple    // "12월"
 }
